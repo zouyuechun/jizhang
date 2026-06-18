@@ -216,12 +216,12 @@
         .category-header .cat-actions { display: flex; gap: 12px; }
         .subcategory-item .cat-actions { display: flex; gap: 12px; }
         .category-manage-item .btn-small {
-            padding: 6px 10px;
-            font-size: 14px;
+            padding: 4px 8px;
+            font-size: 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            min-width: 34px;
+            min-width: 28px;
         }
         .btn-up { background: #1890ff; color: white; }
         .btn-down { background: #52c41a; color: white; }
@@ -2017,12 +2017,12 @@
                             <span class="cat-name">${cat}</span>
                             ${hasSubs ? `<span style="color: #999; font-size: 12px; margin-right: 10px;">(${subs.length}个子类)</span>` : ''}
                             <div class="cat-actions" onclick="event.stopPropagation();" style="gap: 12px;">
-                                <button class="btn-small" onclick="event.stopPropagation(); moveCategoryToTop('${cat}');" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;background:#f0f0f0;color:#999;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="background:#1890ff;color:white;font-size:28px;padding:12px 16px;min-width:50px;"'} title="置顶">🔝</button>
-                                <button class="btn-small btn-up" onclick="event.stopPropagation(); moveCategory('${cat}', -1);" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="上移">↑</button>
-                                <button class="btn-small btn-down" onclick="event.stopPropagation(); moveCategory('${cat}', 1);" ${index === catKeys.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="下移">↓</button>
-                                <button class="btn-small" onclick="event.stopPropagation(); showSortPanel('${cat}');" style="background:#faad14;color:white;font-size:28px;padding:12px 16px;min-width:50px;" title="数字排序">#</button>
-                                <button class="btn-small btn-add" onclick="event.stopPropagation(); addSubcategoryPrompt('${cat}');" style="font-size:28px;padding:12px 16px;min-width:50px;" title="添加子分类">+</button>
-                                <button class="btn-small btn-delete" onclick="event.stopPropagation(); deleteCategory('${cat}');" style="font-size:28px;padding:12px 16px;min-width:50px;" title="删除">×</button>
+                                <button class="btn-small" onclick="event.stopPropagation(); moveCategoryToTop('${cat}');" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;background:#f0f0f0;color:#999;"' : 'style="background:#1890ff;color:white;"'} title="置顶">🔝</button>
+                                <button class="btn-small btn-up" onclick="event.stopPropagation(); moveCategory('${cat}', -1);" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="上移">↑</button>
+                                <button class="btn-small btn-down" onclick="event.stopPropagation(); moveCategory('${cat}', 1);" ${index === catKeys.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="下移">↓</button>
+                                <button class="btn-small" onclick="event.stopPropagation(); showSortPanel('${cat}');" style="background:#faad14;color:white;" title="数字排序">#</button>
+                                <button class="btn-small btn-add" onclick="event.stopPropagation(); addSubcategoryPrompt('${cat}');" title="添加子分类">+</button>
+                                <button class="btn-small btn-delete" onclick="event.stopPropagation(); deleteCategory('${cat}');" title="删除">×</button>
                             </div>
                         </div>
                         <div class="category-content" id="cat-content-${cat}">
@@ -2032,9 +2032,9 @@
                                         <div class="subcategory-item">
                                             <span>${sub}</span>
                                             <div class="cat-actions" style="gap: 12px;">
-                                                <button class="btn-small btn-up" onclick="moveSubcategory('${cat}', ${subIndex}, -1)" ${subIndex === 0 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="上移">↑</button>
-                                                <button class="btn-small btn-down" onclick="moveSubcategory('${cat}', ${subIndex}, 1)" ${subIndex === subs.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="下移">↓</button>
-                                                <button class="btn-small btn-delete" onclick="deleteSubcategory('${cat}', '${sub}')" style="font-size:28px;padding:12px 16px;min-width:50px;" title="删除">×</button>
+                                                <button class="btn-small btn-up" onclick="moveSubcategory('${cat}', ${subIndex}, -1)" ${subIndex === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="上移">↑</button>
+                                                <button class="btn-small btn-down" onclick="moveSubcategory('${cat}', ${subIndex}, 1)" ${subIndex === subs.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="下移">↓</button>
+                                                <button class="btn-small btn-delete" onclick="deleteSubcategory('${cat}', '${sub}')" title="删除">×</button>
                                             </div>
                                         </div>
                                     `).join('')}
