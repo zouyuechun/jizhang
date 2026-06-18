@@ -802,14 +802,23 @@
         let categories = JSON.parse(localStorage.getItem('accounting_categories')) || JSON.parse(JSON.stringify(defaultCategories));
         
         // 清理旧分类：将消费平台从主分类移除
-        const oldShoppingCategories = ['淘宝购物', '抖音购物', '京东购物', '闲鱼购物', '苹果商店'];
+        const oldShoppingCategories = ['淘宝购物', '抖音购物', '京东购物', '闲鱼购物', '苹果商店', '拼多多购物', 'iCloud订阅'];
+        let hasChanges = false;
         oldShoppingCategories.forEach(cat => {
             if (categories.expense[cat]) {
                 delete categories.expense[cat];
+                hasChanges = true;
             }
         });
+        // 如果游戏充值在支出里，移到收入-店铺收入
+        if (categories.expense['游戏充值']) {
+            delete categories.expense['游戏充值'];
+            hasChanges = true;
+        }
         // 保存清理后的分类
-        localStorage.setItem('accounting_categories', JSON.stringify(categories));
+        if (hasChanges) {
+            localStorage.setItem('accounting_categories', JSON.stringify(categories));
+        }
         let categoryManageType = 'expense';
         let selectedCategoryForSort = '';
         
@@ -839,7 +848,56 @@
             renderCategoryManageList();
             renderRecurringList();
             checkRecurringToday();
+            initSwipeNavigation();
         });
+
+        // 左滑右滑切换页面
+        function initSwipeNavigation() {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            const minSwipeDistance = 50;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+            
+            document.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+            
+            function handleSwipe() {
+                const swipeDistance = touchEndX - touchStartX;
+                
+                // 左滑（从右向左）- 下一页
+                if (swipeDistance < -minSwipeDistance) {
+                    navigatePage('next');
+                }
+                // 右滑（从左向右）- 上一页
+                else if (swipeDistance > minSwipeDistance) {
+                    navigatePage('prev');
+                }
+            }
+        }
+        
+        // 页面导航顺序
+        const pageOrder = ['trend', 'category', 'calendar'];
+        let currentPageIndex = 0;
+        
+        function navigatePage(direction) {
+            if (direction === 'next') {
+                currentPageIndex = (currentPageIndex + 1) % pageOrder.length;
+            } else {
+                currentPageIndex = (currentPageIndex - 1 + pageOrder.length) % pageOrder.length;
+            }
+            
+            const targetPage = pageOrder[currentPageIndex];
+            
+            // 根据当前显示的图表区域切换
+            if (document.getElementById('chart-trend').style.display !== 'none') {
+                switchChart(targetPage);
+            }
+        }
         
         // 切换类型
         function switchType(type) {
@@ -1187,6 +1245,7 @@
         // 切换图表
         function switchChart(type) {
             currentChart = type;
+            currentPageIndex = pageOrder.indexOf(type);
             document.querySelectorAll('.chart-container').forEach(c => c.style.display = 'none');
             document.getElementById('chart-' + type).style.display = 'block';
             
