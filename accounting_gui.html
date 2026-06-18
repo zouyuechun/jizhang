@@ -106,21 +106,25 @@
         .tab.active { background: #667eea; color: white; }
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 8px;
-            max-height: 200px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-height: 280px;
             overflow-y: auto;
             margin-bottom: 10px;
         }
         .category-btn {
-            padding: 8px;
+            padding: 12px 8px;
             border: 1px solid #d9d9d9;
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             text-align: center;
-            font-size: 13px;
+            font-size: 14px;
             transition: all 0.2s;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .category-btn:hover { border-color: #667eea; background: #f0f5ff; }
         .category-btn.selected { background: #667eea; color: white; border-color: #667eea; }
@@ -208,7 +212,9 @@
             margin-bottom: 8px;
         }
         .category-manage-item .cat-name { flex: 1; font-weight: 500; }
-        .category-manage-item .cat-actions { display: flex; gap: 8px; }
+        .category-manage-item .cat-actions { display: flex; gap: 12px; }
+        .category-header .cat-actions { display: flex; gap: 12px; }
+        .subcategory-item .cat-actions { display: flex; gap: 12px; }
         .category-manage-item .btn-small {
             padding: 8px 14px;
             font-size: 14px;
@@ -519,8 +525,8 @@
                 <h4 style="margin-bottom: 10px; font-size: 14px; color: #389e0d;">➕ 添加固定收支</h4>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <select id="recurringType" onchange="updateRecurringCategoryOptions()" style="padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 14px;">
-                        <option value="expense">📤 固定支出</option>
                         <option value="income">📥 固定收入</option>
+                        <option value="expense">📤 固定支出</option>
                     </select>
                     <select id="recurringCategory" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 14px;">
                         <option value="">选择分类</option>
@@ -552,8 +558,8 @@
             <div class="card">
                 <h2>📝 记一笔</h2>
                 <div class="tabs">
-                    <button class="tab active" onclick="switchType('expense')">支出</button>
-                    <button class="tab" onclick="switchType('income')">收入</button>
+                    <button class="tab active" onclick="switchType('income')">收入</button>
+                    <button class="tab" onclick="switchType('expense')">支出</button>
                 </div>
                 
                 <div class="form-group">
@@ -614,8 +620,8 @@
                     <button class="btn btn-secondary" onclick="showCustomDateRange()" id="timeCustom" style="flex: 1; padding: 8px 12px; font-size: 12px;">自定义</button>
                 </div>
                 <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
-                    <button class="btn btn-primary" id="trendExpenseBtn" onclick="switchTrendType('expense')" style="flex: 1; padding: 10px 16px; font-size: 14px;">支出</button>
                     <button class="btn btn-secondary" id="trendIncomeBtn" onclick="switchTrendType('income')" style="flex: 1; padding: 10px 16px; font-size: 14px;">收入</button>
+                    <button class="btn btn-primary" id="trendExpenseBtn" onclick="switchTrendType('expense')" style="flex: 1; padding: 10px 16px; font-size: 14px;">支出</button>
                     <button class="btn btn-secondary" id="trendBalanceBtn" onclick="switchTrendType('balance')" style="flex: 1; padding: 10px 16px; font-size: 14px;">结余</button>
                 </div>
                 <div id="customDateRange" style="display: none; margin-bottom: 15px; text-align: center;">
@@ -653,19 +659,26 @@
         <div class="card" style="margin-top: 20px;">
             <div class="section-title-with-add">
                 <h2>📂 分类管理+自定义排序</h2>
-                <span class="add-btn-large" onclick="toggleAddCategoryPanel()" title="添加分类" style="display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: normal; padding: 8px 15px;"><span style="font-size: 20px; font-weight: bold;">+</span>添加分类</span>
             </div>
-            <div class="tabs">
-                <button class="tab active" onclick="switchCategoryType('expense')">支出分类</button>
-                <button class="tab" onclick="switchCategoryType('income')">收入分类</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                <div class="tabs" style="margin: 0;">
+                    <button class="tab active" onclick="switchCategoryType('income')">收入分类</button>
+                    <button class="tab" onclick="switchCategoryType('expense')">支出分类</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <button class="tab" onclick="toggleAddCategoryPanel()" style="background: #52c41a; color: white; border-color: #52c41a;">+ 添加分类</button>
+                    <button class="tab" onclick="toggleCategoryManageSection()" style="background: #f5f5f5; color: #666; border-color: #d9d9d9;"><span id="categoryManageToggle" style="transition: transform 0.3s;">▼</span> 分类展示</button>
+                </div>
             </div>
-            <div id="categoryManageList" style="max-height: 400px; overflow-y: auto; margin-top: 15px;"></div>
+            <div id="categoryManageContent">
+                <div id="categoryManageList" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
             <div id="addCategoryPanel" class="add-category-panel">
                 <h4 style="margin-bottom: 10px; font-size: 14px; color: #389e0d;">➕ 添加新分类</h4>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <select id="newCategoryType" style="padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 14px;">
-                        <option value="expense">📤 支出分类</option>
                         <option value="income">📥 收入分类</option>
+                        <option value="expense">📤 支出分类</option>
                     </select>
                     <input type="text" id="newCategoryParent" placeholder="主分类（可选）" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px;">
                     <input type="text" id="newCategoryName" placeholder="子分类名称" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px;">
@@ -770,34 +783,35 @@
         // 默认分类数据
         const defaultCategories = {
             expense: {
-                "餐饮": ["早餐", "午餐", "晚餐", "夜宵", "饮品", "做饭买菜食材", "水果", "零食"],
-                "交通": ["滴滴打车", "花小猪", "美团打车", "腾讯打车", "高德打车", "百度打车", "顺风车/私家车", "动车", "飞机", "轮船"],
+                "餐饮": ["早餐", "午餐", "晚餐", "夜宵", "饮品", "水果", "零食", "做饭食材", "我请客吃饭"],
+                "交通": ["嘀嘀打车", "花小猪", "美团打车", "腾讯打车", "高德打车", "百度打车", "顺风车", "私家车", "动车", "飞机", "轮船"],
                 "购物": ["淘宝", "抖音", "拼多多", "京东", "闲鱼", "唯品会"],
-                "App Store商店": ["iCloud订阅"],
-                "淘宝万象台推广": [],
-                "个人生活": ["衣服", "鞋子", "生活用品", "化妆品", "理发", "话费充值", "烟", "快递费", "彩票"],
-                "住房": ["房贷", "租房", "生活水费", "电费", "饮用水", "物业费"],
-
-                "信用卡手续费": [],
+                "个人生活": ["衣服", "鞋子", "生活用品", "理发", "话费", "烟", "酒", "快递费", "彩票"],
+                "住房": ["房贷", "租房", "生活税费", "电费", "饮用水", "物业费"],
+                "休闲娱乐": ["朋友AA聚餐", "KTV唱歌", "旅游度假", "休闲爱好"],
+                "医疗健康": ["医院看病", "药店买药"],
                 "保险理财": [],
+                "宠物花费": [],
                 "孝敬长辈": [],
                 "人情世故": [],
-                "平台服务费": [],
-                "亏损": [],
-                "token充值": ["Kimi-K2.6充值", "DeepSeek充值", "Openai-GPT-5.5充值", "智谱ai充值", "Minimax-M2.7", "阿里巴巴Qwen充值", "XiaoMi充值", "Claude充值"],
-                "学习投资": [],
-                "医疗健康": ["医院看病", "药店买药"],
-                "休闲娱乐": ["朋友AA聚餐", "KTV唱歌", "我请客吃饭", "旅游度假", "休闲爱好"],
-                "其他": []
+                "平台服务费": ["淘宝", "抖音", "拼多多"],
+                "亏损": ["充值错误", "股票亏损"],
+                "Token充值": ["Kimi-K2.6充值", "DeepSeek充值", "Openai-GPT5.5充值", "智谱Ai充值", "Minimax-M2.7充值", "阿里巴巴Qwen充值", "Xiaomi充值", "Claude Code充值"],
+                "项目投资": [],
+                "App Store商店": ["iCloud订阅"],
+                "淘宝推广": ["万象台"],
+                "手续费": ["刷卡手续费", "花呗手续费", "提现手续费", "借贷利息"],
+                "银行取现": [],
+                "其他支出": []
             },
             income: {
+                "店铺收入": ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值"],
+                "投资收入": ["股票", "基金", "债券", "期货", "黄金", "白银"],
                 "工资收入": [],
-                "奖金": [],
-                "投资": ["股票", "基金"],
-                "店铺收入": ["心悦会员", "苹果卡折扣", "游戏充值"],
+                "奖金收入": [],
                 "好运收入": [],
-                "二手转卖": [],
                 "红包收入": [],
+                "二手转卖": [],
                 "其他收入": []
             }
         };
@@ -812,13 +826,13 @@
             
             // 强制同步收入分类结构
             const correctIncomeStructure = {
+                "店铺收入": ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值"],
+                "投资收入": ["股票", "基金", "债券", "期货", "黄金", "白银"],
                 "工资收入": [],
-                "奖金": [],
-                "投资": ["股票", "基金"],
-                "店铺收入": ["心悦会员", "苹果卡折扣", "游戏充值"],
+                "奖金收入": [],
                 "好运收入": [],
-                "二手转卖": [],
                 "红包收入": [],
+                "二手转卖": [],
                 "其他收入": []
             };
             
@@ -827,8 +841,21 @@
                 delete categories.income["工资"];
             }
             
-            // 强制更新投资子分类
-            categories.income["投资"] = ["股票", "基金"];
+            // 重命名分类
+            if (categories.income["奖金"]) {
+                categories.income["奖金收入"] = categories.income["奖金"];
+                delete categories.income["奖金"];
+            }
+            if (categories.income["投资"]) {
+                categories.income["投资收入"] = categories.income["投资"];
+                delete categories.income["投资"];
+            }
+            
+            // 强制更新投资收入子分类
+            categories.income["投资收入"] = ["股票", "基金", "债券", "期货", "黄金", "白银"];
+            
+            // 强制更新店铺收入子分类顺序
+            categories.income["店铺收入"] = ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值"];
             
             // 确保其他收入分类正确
             Object.keys(correctIncomeStructure).forEach(key => {
@@ -838,12 +865,38 @@
             });
             
             // 清理旧分类
-            const oldShoppingCategories = ['淘宝购物', '抖音购物', '京东购物', '闲鱼购物', '苹果商店', '拼多多购物', 'iCloud订阅'];
+            const oldShoppingCategories = ['淘宝购物', '抖音购物', '京东购物', '闲鱼购物', '苹果商店', '拼多多购物', 'iCloud订阅', '淘宝万象台推广', '信用卡手续费', '学习投资'];
             oldShoppingCategories.forEach(cat => {
                 if (categories.expense[cat]) {
                     delete categories.expense[cat];
                 }
             });
+            
+            // 重命名"其他"为"其他支出"
+            if (categories.expense['其他']) {
+                categories.expense['其他支出'] = categories.expense['其他'];
+                delete categories.expense['其他'];
+            }
+            
+            // 更新token充值子分类
+            if (categories.expense['token充值']) {
+                const tokenIndex = categories.expense['token充值'].indexOf('Minimax-M2.7');
+                if (tokenIndex !== -1) {
+                    categories.expense['token充值'][tokenIndex] = 'Minimax-M2.7充值';
+                }
+                const claudeIndex = categories.expense['token充值'].indexOf('Claude充值');
+                if (claudeIndex !== -1) {
+                    categories.expense['token充值'][claudeIndex] = 'Claude Code充值';
+                }
+            }
+            
+            // 将"我请客吃饭"从休闲娱乐移到餐饮
+            if (categories.expense['休闲娱乐'] && categories.expense['休闲娱乐'].includes('我请客吃饭')) {
+                categories.expense['休闲娱乐'] = categories.expense['休闲娱乐'].filter(item => item !== '我请客吃饭');
+                if (!categories.expense['餐饮'].includes('我请客吃饭')) {
+                    categories.expense['餐饮'].push('我请客吃饭');
+                }
+            }
             
             // 保存更新后的分类
             localStorage.setItem('accounting_categories', JSON.stringify(categories));
@@ -851,13 +904,13 @@
             // 没有保存的分类，使用默认
             categories = JSON.parse(JSON.stringify(defaultCategories));
         }
-        let categoryManageType = 'expense';
+        let categoryManageType = 'income';
         let selectedCategoryForSort = '';
         
         // 数据存储
         let records = JSON.parse(localStorage.getItem('accounting_records') || '[]');
         let budget = JSON.parse(localStorage.getItem('accounting_budget') || '{"monthly": 0}');
-        let currentType = 'expense';
+        let currentType = 'income';
         let currentChart = 'trend';
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth() + 1;
@@ -886,7 +939,7 @@
         function switchType(type) {
             currentType = type;
             document.querySelectorAll('.tabs .tab').forEach((t, i) => {
-                t.classList.toggle('active', i === (type === 'expense' ? 0 : 1));
+                t.classList.toggle('active', i === (type === 'income' ? 0 : 1));
             });
             renderCategories();
         }
@@ -1939,9 +1992,12 @@
         // 分类管理功能
         function switchCategoryType(type) {
             categoryManageType = type;
-            document.querySelectorAll('.card .tabs .tab').forEach((t, i) => {
-                t.classList.toggle('active', i === (type === 'expense' ? 0 : 1));
-            });
+            const content = document.getElementById('categoryManageContent');
+            if (content) {
+                content.querySelectorAll('.tabs .tab').forEach((t, i) => {
+                    t.classList.toggle('active', i === (type === 'income' ? 0 : 1));
+                });
+            }
             renderCategoryManageList();
         }
 
@@ -1960,13 +2016,13 @@
                             <span class="expand-icon">▶</span>
                             <span class="cat-name">${cat}</span>
                             ${hasSubs ? `<span style="color: #999; font-size: 12px; margin-right: 10px;">(${subs.length}个子类)</span>` : ''}
-                            <div class="cat-actions" onclick="event.stopPropagation();">
-                                <button class="btn-small" onclick="event.stopPropagation(); moveCategoryToTop('${cat}');" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;background:#f0f0f0;color:#999;"' : 'style="background:#1890ff;color:white;"'} title="置顶">🔝</button>
-                                <button class="btn-small btn-up" onclick="event.stopPropagation(); moveCategory('${cat}', -1);" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="上移">↑</button>
-                                <button class="btn-small btn-down" onclick="event.stopPropagation(); moveCategory('${cat}', 1);" ${index === catKeys.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="下移">↓</button>
-                                <button class="btn-small" onclick="event.stopPropagation(); showSortPanel('${cat}');" style="background:#faad14;color:white;" title="数字排序">#</button>
-                                <button class="btn-small btn-add" onclick="event.stopPropagation(); addSubcategoryPrompt('${cat}');" title="添加子分类">+</button>
-                                <button class="btn-small btn-delete" onclick="event.stopPropagation(); deleteCategory('${cat}');" title="删除">×</button>
+                            <div class="cat-actions" onclick="event.stopPropagation();" style="gap: 12px;">
+                                <button class="btn-small" onclick="event.stopPropagation(); moveCategoryToTop('${cat}');" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;background:#f0f0f0;color:#999;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="background:#1890ff;color:white;font-size:28px;padding:12px 16px;min-width:50px;"'} title="置顶">🔝</button>
+                                <button class="btn-small btn-up" onclick="event.stopPropagation(); moveCategory('${cat}', -1);" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="上移">↑</button>
+                                <button class="btn-small btn-down" onclick="event.stopPropagation(); moveCategory('${cat}', 1);" ${index === catKeys.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="下移">↓</button>
+                                <button class="btn-small" onclick="event.stopPropagation(); showSortPanel('${cat}');" style="background:#faad14;color:white;font-size:28px;padding:12px 16px;min-width:50px;" title="数字排序">#</button>
+                                <button class="btn-small btn-add" onclick="event.stopPropagation(); addSubcategoryPrompt('${cat}');" style="font-size:28px;padding:12px 16px;min-width:50px;" title="添加子分类">+</button>
+                                <button class="btn-small btn-delete" onclick="event.stopPropagation(); deleteCategory('${cat}');" style="font-size:28px;padding:12px 16px;min-width:50px;" title="删除">×</button>
                             </div>
                         </div>
                         <div class="category-content" id="cat-content-${cat}">
@@ -1975,10 +2031,10 @@
                                     ${subs.map((sub, subIndex) => `
                                         <div class="subcategory-item">
                                             <span>${sub}</span>
-                                            <div class="cat-actions">
-                                                <button class="btn-small btn-up" onclick="moveSubcategory('${cat}', ${subIndex}, -1)" ${subIndex === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="上移">↑</button>
-                                                <button class="btn-small btn-down" onclick="moveSubcategory('${cat}', ${subIndex}, 1)" ${subIndex === subs.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="下移">↓</button>
-                                                <button class="btn-small btn-delete" onclick="deleteSubcategory('${cat}', '${sub}')" title="删除">×</button>
+                                            <div class="cat-actions" style="gap: 12px;">
+                                                <button class="btn-small btn-up" onclick="moveSubcategory('${cat}', ${subIndex}, -1)" ${subIndex === 0 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="上移">↑</button>
+                                                <button class="btn-small btn-down" onclick="moveSubcategory('${cat}', ${subIndex}, 1)" ${subIndex === subs.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;font-size:28px;padding:12px 16px;min-width:50px;"' : 'style="font-size:28px;padding:12px 16px;min-width:50px;"'} title="下移">↓</button>
+                                                <button class="btn-small btn-delete" onclick="deleteSubcategory('${cat}', '${sub}')" style="font-size:28px;padding:12px 16px;min-width:50px;" title="删除">×</button>
                                             </div>
                                         </div>
                                     `).join('')}
@@ -1997,6 +2053,19 @@
             const content = document.getElementById(`cat-content-${catName}`);
             header.classList.toggle('expanded');
             content.classList.toggle('expanded');
+        }
+
+        // 切换分类管理区域的展开/折叠
+        function toggleCategoryManageSection() {
+            const content = document.getElementById('categoryManageContent');
+            const toggle = document.getElementById('categoryManageToggle');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                toggle.style.transform = 'rotate(-90deg)';
+            }
         }
 
         function toggleAddCategoryPanel() {
