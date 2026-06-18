@@ -536,6 +536,15 @@
                     <button class="btn btn-secondary" onclick="toggleRecurringPanel()" style="padding: 8px 16px; border-radius: 6px;">取消</button>
                 </div>
                 <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：每月指定日期自动记录，如每月23号自动记录房贷</p>
+                <div style="margin-top: 15px; padding: 12px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px;">
+                    <p style="font-size: 12px; color: #389e0d; line-height: 1.6;">
+                        <strong>功能说明：</strong><br>
+                        • <strong>启用</strong>：每月自动记录该笔收支<br>
+                        • <strong>禁用</strong>：暂停自动记录，保留设置<br>
+                        • <strong>删除</strong>：彻底删除该固定收支<br>
+                        • 每天打开软件时会检查当天是否有固定收支到期
+                    </p>
+                </div>
             </div>
         </div>
         
@@ -564,11 +573,6 @@
                     <span style="color: #666; font-size: 13px;">已选择：</span>
                     <span id="selectedCategoryText" style="font-weight: bold; color: #667eea;"></span>
                     <button onclick="clearCategorySelection()" style="margin-left: 10px; font-size: 12px; color: #999; background: none; border: none; cursor: pointer;">✕ 重新选择</button>
-                </div>
-                
-                <div class="form-group">
-                    <label>备注</label>
-                    <input type="text" id="note" placeholder="可选">
                 </div>
                 
                 <div class="form-group">
@@ -601,18 +605,18 @@
             </div>
             
             <div id="chart-trend" class="chart-container">
-                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <button class="btn btn-primary" id="trendExpenseBtn" onclick="switchTrendType('expense')" style="padding: 6px 16px; font-size: 14px;">支出</button>
-                    <button class="btn btn-secondary" id="trendIncomeBtn" onclick="switchTrendType('income')" style="padding: 6px 16px; font-size: 14px;">收入</button>
-                    <button class="btn btn-secondary" id="trendBalanceBtn" onclick="switchTrendType('balance')" style="padding: 6px 16px; font-size: 14px;">结余</button>
+                <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 10px;">
+                    <button class="btn btn-secondary" onclick="switchTimeRange('day')" id="timeDay" style="flex: 1; padding: 8px 12px; font-size: 12px;">日</button>
+                    <button class="btn btn-secondary" onclick="switchTimeRange('week')" id="timeWeek" style="flex: 1; padding: 8px 12px; font-size: 12px;">周</button>
+                    <button class="btn btn-primary" onclick="switchTimeRange('month')" id="timeMonth" style="flex: 1; padding: 8px 12px; font-size: 12px;">月</button>
+                    <button class="btn btn-secondary" onclick="switchTimeRange('quarter')" id="timeQuarter" style="flex: 1; padding: 8px 12px; font-size: 12px;">季度</button>
+                    <button class="btn btn-secondary" onclick="switchTimeRange('year')" id="timeYear" style="flex: 1; padding: 8px 12px; font-size: 12px;">年</button>
+                    <button class="btn btn-secondary" onclick="showCustomDateRange()" id="timeCustom" style="flex: 1; padding: 8px 12px; font-size: 12px;">自定义</button>
                 </div>
-                <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <button class="btn btn-secondary" onclick="switchTimeRange('day')" id="timeDay" style="padding: 4px 12px; font-size: 12px;">按日</button>
-                    <button class="btn btn-secondary" onclick="switchTimeRange('week')" id="timeWeek" style="padding: 4px 12px; font-size: 12px;">按周</button>
-                    <button class="btn btn-primary" onclick="switchTimeRange('month')" id="timeMonth" style="padding: 4px 12px; font-size: 12px;">按月</button>
-                    <button class="btn btn-secondary" onclick="switchTimeRange('quarter')" id="timeQuarter" style="padding: 4px 12px; font-size: 12px;">按季度</button>
-                    <button class="btn btn-secondary" onclick="switchTimeRange('year')" id="timeYear" style="padding: 4px 12px; font-size: 12px;">按年</button>
-                    <button class="btn btn-secondary" onclick="showCustomDateRange()" id="timeCustom" style="padding: 4px 12px; font-size: 12px;">自定义</button>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn btn-primary" id="trendExpenseBtn" onclick="switchTrendType('expense')" style="flex: 1; padding: 10px 16px; font-size: 14px;">支出</button>
+                    <button class="btn btn-secondary" id="trendIncomeBtn" onclick="switchTrendType('income')" style="flex: 1; padding: 10px 16px; font-size: 14px;">收入</button>
+                    <button class="btn btn-secondary" id="trendBalanceBtn" onclick="switchTrendType('balance')" style="flex: 1; padding: 10px 16px; font-size: 14px;">结余</button>
                 </div>
                 <div id="customDateRange" style="display: none; margin-bottom: 15px; text-align: center;">
                     <input type="date" id="startDate" style="padding: 6px; border: 1px solid #d9d9d9; border-radius: 4px;">
@@ -767,8 +771,8 @@
         const defaultCategories = {
             expense: {
                 "餐饮": ["早餐", "午餐", "晚餐", "夜宵", "饮品", "做饭买菜食材", "水果", "零食"],
-                "交通": ["滴滴打车", "花小猪", "美团打车", "腾讯打车", "高德打车", "百度打车", "顺风车/私家车"],
-                "购物": ["淘宝", "抖音", "拼多多", "京东", "闲鱼"],
+                "交通": ["滴滴打车", "花小猪", "美团打车", "腾讯打车", "高德打车", "百度打车", "顺风车/私家车", "动车", "飞机", "轮船"],
+                "购物": ["淘宝", "抖音", "拼多多", "京东", "闲鱼", "唯品会"],
                 "App Store商店": ["iCloud订阅"],
                 "淘宝万象台推广": [],
                 "个人生活": ["衣服", "鞋子", "生活用品", "化妆品", "理发", "话费充值", "烟", "快递费", "彩票"],
@@ -798,26 +802,54 @@
             }
         };
 
-        // 从 localStorage 加载分类数据，如果没有则使用默认数据
-        let categories = JSON.parse(localStorage.getItem('accounting_categories')) || JSON.parse(JSON.stringify(defaultCategories));
+        // 从 localStorage 加载分类数据
+        let savedCategories = localStorage.getItem('accounting_categories');
+        let categories;
         
-        // 清理旧分类：将消费平台从主分类移除
-        const oldShoppingCategories = ['淘宝购物', '抖音购物', '京东购物', '闲鱼购物', '苹果商店', '拼多多购物', 'iCloud订阅'];
-        let hasChanges = false;
-        oldShoppingCategories.forEach(cat => {
-            if (categories.expense[cat]) {
-                delete categories.expense[cat];
-                hasChanges = true;
+        if (savedCategories) {
+            // 有保存的分类，进行合并和清理
+            categories = JSON.parse(savedCategories);
+            
+            // 强制同步收入分类结构
+            const correctIncomeStructure = {
+                "工资收入": [],
+                "奖金": [],
+                "投资": ["股票", "基金"],
+                "店铺收入": ["心悦会员", "苹果卡折扣", "游戏充值"],
+                "好运收入": [],
+                "二手转卖": [],
+                "红包收入": [],
+                "其他收入": []
+            };
+            
+            // 删除错误的"工资"分类
+            if (categories.income["工资"]) {
+                delete categories.income["工资"];
             }
-        });
-        // 如果游戏充值在支出里，移到收入-店铺收入
-        if (categories.expense['游戏充值']) {
-            delete categories.expense['游戏充值'];
-            hasChanges = true;
-        }
-        // 保存清理后的分类
-        if (hasChanges) {
+            
+            // 强制更新投资子分类
+            categories.income["投资"] = ["股票", "基金"];
+            
+            // 确保其他收入分类正确
+            Object.keys(correctIncomeStructure).forEach(key => {
+                if (!categories.income[key]) {
+                    categories.income[key] = correctIncomeStructure[key];
+                }
+            });
+            
+            // 清理旧分类
+            const oldShoppingCategories = ['淘宝购物', '抖音购物', '京东购物', '闲鱼购物', '苹果商店', '拼多多购物', 'iCloud订阅'];
+            oldShoppingCategories.forEach(cat => {
+                if (categories.expense[cat]) {
+                    delete categories.expense[cat];
+                }
+            });
+            
+            // 保存更新后的分类
             localStorage.setItem('accounting_categories', JSON.stringify(categories));
+        } else {
+            // 没有保存的分类，使用默认
+            categories = JSON.parse(JSON.stringify(defaultCategories));
         }
         let categoryManageType = 'expense';
         let selectedCategoryForSort = '';
@@ -957,9 +989,8 @@
         function addRecord() {
             const amount = parseFloat(document.getElementById('amount').value);
             const category = document.getElementById('selectedCategory').value;
-            const note = document.getElementById('note').value;
             const tagsInput = document.getElementById('tags').value.trim();
-            
+
             if (!amount || amount <= 0) {
                 alert('请输入金额');
                 return;
@@ -968,24 +999,22 @@
                 alert('请选择分类');
                 return;
             }
-            
+
             // 解析标签
             const tags = tagsInput ? tagsInput.split(/\s+/).filter(t => t) : [];
-            
+
             const record = {
                 time: new Date().toISOString(),
                 category: category,
                 amount: currentType === 'expense' ? -amount : amount,
-                note: note,
                 tags: tags
             };
-            
+
             records.unshift(record);
             localStorage.setItem('accounting_records', JSON.stringify(records));
-            
+
             // 重置表单
             document.getElementById('amount').value = '';
-            document.getElementById('note').value = '';
             document.getElementById('tags').value = '';
             clearCategorySelection();
             
@@ -1048,7 +1077,6 @@
                 <div class="record-item" style="position: relative;">
                     <div style="flex: 1;">
                         <div class="record-category">${r.category}</div>
-                        ${r.note ? `<div class="record-note">${r.note}</div>` : ''}
                         ${r.tags && r.tags.length > 0 ? `<div style="margin-top: 5px;">${r.tags.map(t => `<span style="display: inline-block; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #666; margin-right: 5px; cursor: pointer;" onclick="addTagFilter('${t}')">#${t}</span>`).join('')}</div>` : ''}
                     </div>
                     <div style="text-align: right; margin-right: 10px;">
@@ -1731,8 +1759,8 @@
                         ${item.note ? `<span style="color: #999; font-size: 12px; margin-left: 10px;">(${item.note})</span>` : ''}
                     </div>
                     <div class="cat-actions">
-                        <button class="btn-small ${item.enabled ? 'btn-success' : 'btn-secondary'}" onclick="toggleRecurring(${index})" title="${item.enabled ? '禁用' : '启用'}">
-                            ${item.enabled ? '✓' : '✗'}
+                        <button class="btn-small ${item.enabled ? 'btn-success' : 'btn-secondary'}" onclick="toggleRecurring(${index})" style="font-size: 12px; min-width: 50px;">
+                            ${item.enabled ? '启用' : '禁用'}
                         </button>
                         <button class="btn-small btn-delete" onclick="deleteRecurring(${index})" title="删除">×</button>
                     </div>
