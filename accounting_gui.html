@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💰 智能记账软件</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -222,6 +223,10 @@
         .subcategory-list {
             margin-left: 20px;
             margin-top: 8px;
+            display: none;
+        }
+        .subcategory-list.expanded {
+            display: block;
         }
         .subcategory-item {
             display: flex;
@@ -232,6 +237,83 @@
             border-radius: 4px;
             margin-bottom: 4px;
             font-size: 13px;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-header:hover {
+            background: #e0e0e0;
+        }
+        .category-header .cat-name {
+            font-weight: bold;
+            font-size: 15px;
+            color: #333;
+            flex: 1;
+        }
+        .category-header .expand-icon {
+            font-size: 18px;
+            color: #666;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+        .category-header.expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+        .category-section {
+            margin-bottom: 10px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .category-content {
+            display: none;
+            padding: 10px 15px;
+            background: #fafafa;
+        }
+        .category-content.expanded {
+            display: block;
+        }
+        .section-title-with-add {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .section-title-with-add h2 {
+            margin: 0;
+        }
+        .add-btn-large {
+            font-size: 24px;
+            font-weight: bold;
+            color: #52c41a;
+            cursor: pointer;
+            padding: 5px 15px;
+            background: #f6ffed;
+            border: 2px solid #52c41a;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .add-btn-large:hover {
+            background: #52c41a;
+            color: white;
+        }
+        .add-category-panel {
+            display: none;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .add-category-panel.expanded {
+            display: block;
         }
     </style>
 </head>
@@ -332,11 +414,18 @@
                 <h3 style="color: #333; font-size: 16px; margin-bottom: 10px;">💾 数据备份（必看！）</h3>
                 <div style="background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px; padding: 15px; font-size: 14px; color: #389e0d; line-height: 1.8;">
                     <p><strong>强烈建议每次记账后都备份！</strong></p>
-                    <p>备份方法：</p>
+                    <p><strong>JSON 格式备份（推荐，数据完整）：</strong></p>
                     <ol style="padding-left: 20px;">
-                        <li>点击「导出JSON」按钮</li>
+                        <li>选择「JSON 格式」</li>
+                        <li>点击「导出 JSON」按钮</li>
                         <li>发送到微信文件传输助手</li>
                         <li>或保存到 iCloud/百度网盘</li>
+                    </ol>
+                    <p style="margin-top: 10px;"><strong>CSV 格式备份（方便查看）：</strong></p>
+                    <ol style="padding-left: 20px;">
+                        <li>选择「CSV 格式」</li>
+                        <li>点击「导出 CSV」按钮</li>
+                        <li>可用 Excel、WPS 打开查看账目</li>
                     </ol>
                     <p style="margin-top: 10px;">⚠️ 如果不备份，清除浏览器数据后记录将全部丢失！</p>
                 </div>
@@ -357,6 +446,12 @@
                     每个人使用都是独立的，你的数据只存在你自己的设备上。
                     即使别人使用同一个软件，也完全看不到你的记录。
                 </p>
+            </div>
+
+            <div style="background: #f0f5ff; border: 1px solid #667eea; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+                <h4 style="color: #667eea; margin-bottom: 10px;">💬 欢迎反馈</h4>
+                <p style="font-size: 13px; color: #555; margin-bottom: 10px;">扫描二维码添加微信，提出意见和建议，一起优化完善！</p>
+                <img src="https://open.feishu.cn/open-apis/im/v1/images/om_x100b6c0935c0f8b0c44ced92952eb0e" style="max-width: 150px; border-radius: 8px;" alt="微信二维码">
             </div>
 
             <div style="text-align: center; margin-top: 25px;">
@@ -411,6 +506,36 @@
                 </div>
             </div>
         </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <div class="section-title-with-add">
+                <h2>🔄 固定收支</h2>
+                <span class="add-btn-large" onclick="toggleRecurringPanel()" title="添加固定收支" style="display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: normal; padding: 8px 15px;"><span style="font-size: 20px; font-weight: bold;">+</span>添加固定</span>
+            </div>
+            <div id="recurringList" style="max-height: 300px; overflow-y: auto; margin-top: 15px;"></div>
+            <div id="addRecurringPanel" class="add-category-panel">
+                <h4 style="margin-bottom: 10px; font-size: 14px; color: #389e0d;">➕ 添加固定收支</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <select id="recurringType" onchange="updateRecurringCategoryOptions()" style="padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 14px;">
+                        <option value="expense">📤 固定支出</option>
+                        <option value="income">📥 固定收入</option>
+                    </select>
+                    <select id="recurringCategory" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 14px;">
+                        <option value="">选择分类</option>
+                    </select>
+                    <input type="number" id="recurringAmount" placeholder="金额" style="width: 100px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px;">
+                    <input type="number" id="recurringDay" placeholder="每月几号" min="1" max="31" style="width: 90px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px;">
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <input type="text" id="recurringNote" placeholder="备注（可选）" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px;">
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-add" onclick="addRecurring()" style="padding: 8px 16px; border-radius: 6px;">添加</button>
+                    <button class="btn btn-secondary" onclick="toggleRecurringPanel()" style="padding: 8px 16px; border-radius: 6px;">取消</button>
+                </div>
+                <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：每月指定日期自动记录，如每月23号自动记录房贷</p>
+            </div>
+        </div>
         
         <div class="main-grid">
             <div class="card">
@@ -429,6 +554,14 @@
                     <label>分类</label>
                     <div class="category-grid" id="categoryGrid"></div>
                     <input type="hidden" id="selectedCategory">
+                    <input type="hidden" id="selectedParentCategory">
+                </div>
+                
+                <!-- 当前选中的分类显示 -->
+                <div id="selectedCategoryDisplay" style="display: none; margin-top: 10px; padding: 10px; background: #f0f5ff; border-radius: 8px; border: 1px solid #667eea;">
+                    <span style="color: #666; font-size: 13px;">已选择：</span>
+                    <span id="selectedCategoryText" style="font-weight: bold; color: #667eea;"></span>
+                    <button onclick="clearCategorySelection()" style="margin-left: 10px; font-size: 12px; color: #999; background: none; border: none; cursor: pointer;">✕ 重新选择</button>
                 </div>
                 
                 <div class="form-group">
@@ -436,11 +569,21 @@
                     <input type="text" id="note" placeholder="可选">
                 </div>
                 
+                <div class="form-group">
+                    <label>标签（多个标签用空格分隔）</label>
+                    <input type="text" id="tags" placeholder="如：工作餐 外卖 报销" style="width: 100%; padding: 10px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                    <div id="tagSuggestions" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
+                </div>
+                
                 <button class="btn btn-primary" onclick="addRecord()">💾 保存记录</button>
             </div>
             
             <div class="card">
                 <h2>🕐 最近记录</h2>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <input type="text" id="tagFilter" placeholder="按标签筛选（输入标签名）" style="width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;" oninput="filterRecordsByTag()">
+                    <div id="activeTagFilters" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px;"></div>
+                </div>
                 <div class="record-list" id="recordList">
                     <div class="empty-state">暂无记录</div>
                 </div>
@@ -461,8 +604,14 @@
             
             <div id="chart-category" class="chart-container" style="display: none;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <canvas id="expenseChart" style="max-height: 250px;"></canvas>
-                    <canvas id="incomeChart" style="max-height: 250px;"></canvas>
+                    <div>
+                        <canvas id="expenseChart" style="max-height: 250px;"></canvas>
+                        <div id="expenseChartEmpty" style="display: none; text-align: center; padding: 50px; color: #999;">暂无支出数据</div>
+                    </div>
+                    <div>
+                        <canvas id="incomeChart" style="max-height: 250px;"></canvas>
+                        <div id="incomeChartEmpty" style="display: none; text-align: center; padding: 50px; color: #999;">暂无收入数据</div>
+                    </div>
                 </div>
             </div>
             
@@ -477,30 +626,66 @@
         </div>
         
         <div class="card" style="margin-top: 20px;">
-            <h2>📤 数据管理</h2>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="exportData()">📥 导出JSON</button>
-                <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📤 导入</button>
-                <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(this)">
-                <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清空</button>
+            <div class="section-title-with-add">
+                <h2>📂 分类管理+自定义排序</h2>
+                <span class="add-btn-large" onclick="toggleAddCategoryPanel()" title="添加分类" style="display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: normal; padding: 8px 15px;"><span style="font-size: 20px; font-weight: bold;">+</span>添加分类</span>
             </div>
-        </div>
-
-        <div class="card" style="margin-top: 20px;">
-            <h2>📂 分类管理</h2>
             <div class="tabs">
                 <button class="tab active" onclick="switchCategoryType('expense')">支出分类</button>
                 <button class="tab" onclick="switchCategoryType('income')">收入分类</button>
             </div>
-            <div id="categoryManageList" style="max-height: 400px; overflow-y: auto;"></div>
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
-                <h4 style="margin-bottom: 10px; font-size: 14px;">添加新分类</h4>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <input type="text" id="newCategoryName" placeholder="分类名称" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                    <input type="text" id="newCategoryParent" placeholder="父分类（可选）" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                    <button class="btn btn-add" onclick="addNewCategory()" style="padding: 8px 16px; border-radius: 6px;">➕ 添加</button>
+            <div id="categoryManageList" style="max-height: 400px; overflow-y: auto; margin-top: 15px;"></div>
+            <div id="addCategoryPanel" class="add-category-panel">
+                <h4 style="margin-bottom: 10px; font-size: 14px; color: #389e0d;">➕ 添加新分类</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <select id="newCategoryType" style="padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px; font-size: 14px;">
+                        <option value="expense">📤 支出分类</option>
+                        <option value="income">📥 收入分类</option>
+                    </select>
+                    <input type="text" id="newCategoryParent" placeholder="主分类（可选）" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px;">
+                    <input type="text" id="newCategoryName" placeholder="子分类名称" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #b7eb8f; border-radius: 6px;">
                 </div>
-                <p style="font-size: 12px; color: #999; margin-top: 8px;">提示：父分类留空则添加主分类，填写父分类名称则添加子分类</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-add" onclick="addNewCategory()" style="padding: 8px 16px; border-radius: 6px;">添加</button>
+                    <button class="btn btn-secondary" onclick="toggleAddCategoryPanel()" style="padding: 8px 16px; border-radius: 6px;">取消</button>
+                </div>
+                <p style="font-size: 12px; color: #666; margin-top: 8px;">说明：第一个空填大类（如购物），第二个空填小类（如淘宝）。第一个空不填，就是添加大类。</p>
+            </div>
+
+            <!-- 数字排序面板 -->
+            <div id="sortCategoryPanel" class="add-category-panel" style="background: #e6f7ff; border-color: #91d5ff;">
+                <h4 style="margin-bottom: 10px; font-size: 14px; color: #096dd9;">🔢 数字排序</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center;">
+                    <span style="font-size: 14px; color: #666;">输入排序数字（1=最前）：</span>
+                    <input type="number" id="sortCategoryIndex" placeholder="如：1, 2, 3..." min="1" style="width: 120px; padding: 8px 12px; border: 1px solid #91d5ff; border-radius: 6px;">
+                    <button class="btn btn-primary" onclick="sortCategoryByNumber()" style="padding: 8px 16px; border-radius: 6px; background: #1890ff;">应用排序</button>
+                    <button class="btn btn-secondary" onclick="toggleSortCategoryPanel()" style="padding: 8px 16px; border-radius: 6px;">取消</button>
+                </div>
+                <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：输入数字后，当前选中的分类会移动到该位置。例如输入1表示置顶，输入3表示排到第3位。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h2>📤 数据管理</h2>
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 14px; color: #666; margin-right: 10px;">选择格式：</label>
+                <select id="dataFormat" onchange="switchDataFormat()" style="padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;">
+                    <option value="json">JSON 格式</option>
+                    <option value="csv">CSV 格式</option>
+                </select>
+            </div>
+            <div id="jsonButtons" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                <button class="btn btn-primary" onclick="exportData()">📥 导出 JSON</button>
+                <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📤 导入 JSON</button>
+                <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(this)">
+            </div>
+            <div id="csvButtons" style="display: none; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                <button class="btn btn-primary" onclick="exportCSV()">📥 导出 CSV</button>
+                <button class="btn btn-success" onclick="document.getElementById('importCSVFile').click()">📤 导入 CSV</button>
+                <input type="file" id="importCSVFile" style="display: none;" accept=".csv" onchange="importCSV(this)">
+            </div>
+            <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                <button class="btn btn-danger" onclick="showClearDataModal()" style="background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);">⚠️ 格式化/清空所有数据</button>
             </div>
         </div>
     </div>
@@ -514,24 +699,60 @@
         </div>
     </div>
 
+    <!-- 子分类选择弹窗 -->
+    <div class="modal" id="subCategoryModal">
+        <div class="modal-content" style="max-width: 500px; max-height: 80vh;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;">
+                <h3 id="subCategoryTitle" style="color: #333;">选择子分类</h3>
+                <button onclick="closeSubCategoryModal()" style="font-size: 24px; color: #999; background: none; border: none; cursor: pointer;">×</button>
+            </div>
+            <div id="subCategoryGrid" class="category-grid" style="max-height: 60vh; overflow-y: auto;"></div>
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                <button class="btn btn-secondary" onclick="selectNoSubcategory()" style="width: 100%;">不选子分类，直接使用「<span id="parentCatName"></span>」</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 清空数据确认弹窗 -->
+    <div class="modal" id="clearDataModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 48px; margin-bottom: 10px;">⚠️</div>
+                <h3 style="color: #cf1322;">危险操作确认</h3>
+            </div>
+            <div style="background: #fff2f0; border: 1px solid #ffccc7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <p style="color: #5c0011; font-size: 14px; line-height: 1.6;">
+                    此操作将永久删除以下所有数据：<br>
+                    • 所有记账记录<br>
+                    • 分类设置<br>
+                    • 预算设置<br>
+                    • 密码和密保设置<br>
+                    <strong>此操作不可恢复！</strong>
+                </p>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 13px; color: #666;">请输入 "DELETE" 确认删除：</label>
+                <input type="text" id="clearConfirmInput" placeholder="DELETE" style="width: 100%; padding: 10px; border: 2px solid #ff4d4f; border-radius: 6px; margin-top: 5px; text-align: center; font-size: 16px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeClearDataModal()" style="flex: 1;">取消</button>
+                <button class="btn btn-danger" onclick="confirmClearAllData()" style="flex: 1; background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);">确认清空</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 默认分类数据
         const defaultCategories = {
             expense: {
                 "餐饮": ["早餐", "午餐", "晚餐", "夜宵", "饮品", "做饭买菜食材", "水果", "零食"],
                 "交通": ["滴滴打车", "花小猪", "美团打车", "腾讯打车", "高德打车", "百度打车", "顺风车/私家车"],
-                "购物": [],
-                "淘宝购物": [],
-                "抖音购物": [],
-                "拼多多购物": [],
-                "京东购物": [],
-                "闲鱼购物": [],
-                "苹果商店": [],
-                "iCloud订阅": [],
+                "购物": ["淘宝", "抖音", "拼多多", "京东", "闲鱼"],
+                "App Store商店": ["iCloud订阅"],
                 "淘宝万象台推广": [],
                 "个人生活": ["衣服", "鞋子", "生活用品", "化妆品", "理发", "话费充值", "烟", "快递费", "彩票"],
                 "住房": ["房贷", "租房", "生活水费", "电费", "饮用水", "物业费"],
-                "游戏充值": ["我的世界", "腾讯视频钻石", "天天酷跑", "王者荣耀"],
+
                 "信用卡手续费": [],
                 "保险理财": [],
                 "孝敬长辈": [],
@@ -542,15 +763,13 @@
                 "学习投资": [],
                 "医疗健康": ["医院看病", "药店买药"],
                 "休闲娱乐": ["朋友AA聚餐", "KTV唱歌", "我请客吃饭", "旅游度假", "休闲爱好"],
-                "娱乐": [],
                 "其他": []
             },
             income: {
-                "工资": [],
                 "工资收入": [],
                 "奖金": [],
-                "投资": [],
-                "店铺收入": ["心悦会员", "苹果卡折扣"],
+                "投资": ["股票", "基金"],
+                "店铺收入": ["心悦会员", "苹果卡折扣", "游戏充值"],
                 "好运收入": [],
                 "二手转卖": [],
                 "红包收入": [],
@@ -561,6 +780,7 @@
         // 从 localStorage 加载分类数据，如果没有则使用默认数据
         let categories = JSON.parse(localStorage.getItem('accounting_categories')) || JSON.parse(JSON.stringify(defaultCategories));
         let categoryManageType = 'expense';
+        let selectedCategoryForSort = '';
         
         // 数据存储
         let records = JSON.parse(localStorage.getItem('accounting_records') || '[]');
@@ -571,7 +791,13 @@
         let currentMonth = new Date().getMonth() + 1;
         let selectedCategory = '';
         let trendChart, expenseChart, incomeChart;
+
+        // 注册 ChartDataLabels 插件
+        Chart.register(ChartDataLabels);
         
+        // 固定收支数据
+        let recurring = JSON.parse(localStorage.getItem('accounting_recurring') || '[]');
+
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             renderCategories();
@@ -580,6 +806,8 @@
             loadBudget();
             loadTrendChart();
             renderCategoryManageList();
+            renderRecurringList();
+            checkRecurringToday();
         });
         
         // 切换类型
@@ -591,7 +819,7 @@
             renderCategories();
         }
         
-        // 渲染分类
+        // 渲染分类（只显示主分类）
         function renderCategories() {
             const grid = document.getElementById('categoryGrid');
             grid.innerHTML = '';
@@ -601,26 +829,88 @@
                 const btn = document.createElement('div');
                 btn.className = 'category-btn';
                 btn.textContent = cat;
-                btn.onclick = () => selectCategory(cat, btn);
+                btn.onclick = () => selectParentCategory(cat);
                 grid.appendChild(btn);
-                
-                (cats[cat] || []).forEach(sub => {
-                    const subBtn = document.createElement('div');
-                    subBtn.className = 'category-btn';
-                    subBtn.style.fontSize = '11px';
-                    subBtn.textContent = sub;
-                    subBtn.onclick = () => selectCategory(sub, subBtn);
-                    grid.appendChild(subBtn);
-                });
             });
         }
         
-        // 选择分类
-        function selectCategory(cat, btn) {
+        // 选择主分类
+        function selectParentCategory(cat) {
+            const cats = categories[currentType];
+            const subs = cats[cat] || [];
+            
+            // 保存选中的父分类
+            document.getElementById('selectedParentCategory').value = cat;
+            
+            if (subs.length > 0) {
+                // 有子分类，显示弹窗
+                showSubCategoryModal(cat, subs);
+            } else {
+                // 没有子分类，直接选中
+                finalizeCategorySelection(cat);
+            }
+        }
+        
+        // 显示子分类弹窗
+        function showSubCategoryModal(parentCat, subs) {
+            document.getElementById('subCategoryTitle').textContent = '选择「' + parentCat + '」的子分类';
+            document.getElementById('parentCatName').textContent = parentCat;
+            
+            const grid = document.getElementById('subCategoryGrid');
+            grid.innerHTML = '';
+            
+            subs.forEach(sub => {
+                const btn = document.createElement('div');
+                btn.className = 'category-btn';
+                btn.textContent = sub;
+                btn.onclick = () => {
+                    finalizeCategorySelection(sub, parentCat);
+                    closeSubCategoryModal();
+                };
+                grid.appendChild(btn);
+            });
+            
+            document.getElementById('subCategoryModal').classList.add('active');
+        }
+        
+        // 关闭子分类弹窗
+        function closeSubCategoryModal() {
+            document.getElementById('subCategoryModal').classList.remove('active');
+        }
+        
+        // 不选子分类，直接使用父分类
+        function selectNoSubcategory() {
+            const parentCat = document.getElementById('selectedParentCategory').value;
+            finalizeCategorySelection(parentCat);
+            closeSubCategoryModal();
+        }
+        
+        // 完成分类选择
+        function finalizeCategorySelection(cat, parentCat) {
             selectedCategory = cat;
             document.getElementById('selectedCategory').value = cat;
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
+            
+            // 显示已选择的分类
+            const displayText = parentCat ? parentCat + ' > ' + cat : cat;
+            document.getElementById('selectedCategoryText').textContent = displayText;
+            document.getElementById('selectedCategoryDisplay').style.display = 'block';
+            
+            // 高亮选中的主分类按钮
+            document.querySelectorAll('#categoryGrid .category-btn').forEach(b => {
+                b.classList.remove('selected');
+                if (b.textContent === parentCat || b.textContent === cat) {
+                    b.classList.add('selected');
+                }
+            });
+        }
+        
+        // 清除分类选择
+        function clearCategorySelection() {
+            selectedCategory = '';
+            document.getElementById('selectedCategory').value = '';
+            document.getElementById('selectedParentCategory').value = '';
+            document.getElementById('selectedCategoryDisplay').style.display = 'none';
+            document.querySelectorAll('#categoryGrid .category-btn').forEach(b => b.classList.remove('selected'));
         }
         
         // 添加记录
@@ -628,6 +918,7 @@
             const amount = parseFloat(document.getElementById('amount').value);
             const category = document.getElementById('selectedCategory').value;
             const note = document.getElementById('note').value;
+            const tagsInput = document.getElementById('tags').value.trim();
             
             if (!amount || amount <= 0) {
                 alert('请输入金额');
@@ -638,11 +929,15 @@
                 return;
             }
             
+            // 解析标签
+            const tags = tagsInput ? tagsInput.split(/\s+/).filter(t => t) : [];
+            
             const record = {
                 time: new Date().toISOString(),
                 category: category,
                 amount: currentType === 'expense' ? -amount : amount,
-                note: note
+                note: note,
+                tags: tags
             };
             
             records.unshift(record);
@@ -651,9 +946,8 @@
             // 重置表单
             document.getElementById('amount').value = '';
             document.getElementById('note').value = '';
-            document.getElementById('selectedCategory').value = '';
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-            selectedCategory = '';
+            document.getElementById('tags').value = '';
+            clearCategorySelection();
             
             updateStats();
             renderRecords();
@@ -689,19 +983,33 @@
             }
         }
         
+        // 当前筛选的标签
+        let activeTagFilters = [];
+
         // 渲染记录列表
         function renderRecords() {
             const list = document.getElementById('recordList');
-            if (records.length === 0) {
-                list.innerHTML = '<div class="empty-state">暂无记录</div>';
+            
+            // 根据标签筛选
+            let filteredRecords = records;
+            if (activeTagFilters.length > 0) {
+                filteredRecords = records.filter(r => {
+                    const recordTags = r.tags || [];
+                    return activeTagFilters.some(filterTag => recordTags.includes(filterTag));
+                });
+            }
+            
+            if (filteredRecords.length === 0) {
+                list.innerHTML = '<div class="empty-state">' + (activeTagFilters.length > 0 ? '没有符合条件的记录' : '暂无记录') + '</div>';
                 return;
             }
             
-            list.innerHTML = records.slice(0, 20).map(r => `
+            list.innerHTML = filteredRecords.slice(0, 20).map(r => `
                 <div class="record-item">
                     <div>
                         <div class="record-category">${r.category}</div>
                         ${r.note ? `<div class="record-note">${r.note}</div>` : ''}
+                        ${r.tags && r.tags.length > 0 ? `<div style="margin-top: 5px;">${r.tags.map(t => `<span style="display: inline-block; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #666; margin-right: 5px; cursor: pointer;" onclick="addTagFilter('${t}')">#${t}</span>`).join('')}</div>` : ''}
                     </div>
                     <div style="text-align: right;">
                         <div class="record-amount ${r.amount > 0 ? 'income' : 'expense'}">
@@ -711,6 +1019,56 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // 添加标签筛选
+        function addTagFilter(tag) {
+            if (!activeTagFilters.includes(tag)) {
+                activeTagFilters.push(tag);
+                document.getElementById('tagFilter').value = '';
+                renderActiveTagFilters();
+                renderRecords();
+            }
+        }
+
+        // 移除标签筛选
+        function removeTagFilter(tag) {
+            activeTagFilters = activeTagFilters.filter(t => t !== tag);
+            renderActiveTagFilters();
+            renderRecords();
+        }
+
+        // 渲染当前激活的标签筛选
+        function renderActiveTagFilters() {
+            const container = document.getElementById('activeTagFilters');
+            if (activeTagFilters.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = activeTagFilters.map(tag => `
+                <span style="display: inline-flex; align-items: center; background: #667eea; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px;">
+                    #${tag}
+                    <span style="margin-left: 5px; cursor: pointer; font-weight: bold;" onclick="removeTagFilter('${tag}')">×</span>
+                </span>
+            `).join('');
+        }
+
+        // 输入框筛选标签
+        function filterRecordsByTag() {
+            const input = document.getElementById('tagFilter').value.trim();
+            if (input) {
+                // 支持空格分隔多个标签
+                const tags = input.split(/\s+/).filter(t => t);
+                tags.forEach(tag => {
+                    if (!activeTagFilters.includes(tag)) {
+                        activeTagFilters.push(tag);
+                    }
+                });
+                document.getElementById('tagFilter').value = '';
+                renderActiveTagFilters();
+                renderRecords();
+            }
         }
         
         // 设置预算
@@ -738,7 +1096,9 @@
             document.querySelectorAll('.chart-container').forEach(c => c.style.display = 'none');
             document.getElementById('chart-' + type).style.display = 'block';
             
-            document.querySelectorAll('.card .tabs .tab').forEach((t, i) => {
+            // 只更新当前图表区域的 tab 按钮
+            const chartContainer = document.getElementById('chart-trend').parentElement;
+            chartContainer.querySelectorAll('.tabs .tab').forEach((t, i) => {
                 t.classList.toggle('active', 
                     (type === 'trend' && i === 0) || 
                     (type === 'category' && i === 1) || 
@@ -804,32 +1164,113 @@
             const expCats = Object.entries(catData.expense).sort((a, b) => b[1] - a[1]).slice(0, 8);
             const incCats = Object.entries(catData.income).sort((a, b) => b[1] - a[1]).slice(0, 8);
             
+            // 处理支出图表
+            const expenseCanvas = document.getElementById('expenseChart');
+            const expenseEmpty = document.getElementById('expenseChartEmpty');
             if (expenseChart) expenseChart.destroy();
+            
+            if (expCats.length === 0) {
+                expenseCanvas.style.display = 'none';
+                expenseEmpty.style.display = 'block';
+            } else {
+                expenseCanvas.style.display = 'block';
+                expenseEmpty.style.display = 'none';
+                expenseChart = new Chart(expenseCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: expCats.map(c => c[0]),
+                        datasets: [{
+                            data: expCats.map(c => c[1]),
+                            backgroundColor: ['#f5222d', '#ff7875', '#ffa39e', '#ffccc7', '#ffd8bf', '#ffe7ba', '#fff1b8', '#ffffb8']
+                        }]
+                    },
+                    options: {
+                    responsive: true,
+                    plugins: {
+                        title: { display: true, text: '支出分类' },
+                        datalabels: {
+                            color: '#333',
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 10,
+                            font: { size: 12 },
+                            formatter: function(value, context) {
+                                const label = context.chart.data.labels[context.dataIndex];
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}\n${percentage}%`;
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ¥${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        },
+                        legend: { display: false }
+                    }
+                }
+                });
+            }
+            
+            // 处理收入图表
+            const incomeCanvas = document.getElementById('incomeChart');
+            const incomeEmpty = document.getElementById('incomeChartEmpty');
             if (incomeChart) incomeChart.destroy();
             
-            expenseChart = new Chart(document.getElementById('expenseChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: expCats.map(c => c[0]),
-                    datasets: [{
-                        data: expCats.map(c => c[1]),
-                        backgroundColor: ['#f5222d', '#ff7875', '#ffa39e', '#ffccc7', '#ffd8bf', '#ffe7ba', '#fff1b8', '#ffffb8']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: '支出分类' } } }
-            });
-            
-            incomeChart = new Chart(document.getElementById('incomeChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: incCats.map(c => c[0]),
-                    datasets: [{
-                        data: incCats.map(c => c[1]),
-                        backgroundColor: ['#52c41a', '#73d13d', '#95de64', '#b7eb8f', '#d9f7be', '#f6ffed']
-                    }]
-                },
-                options: { responsive: true, plugins: { title: { display: true, text: '收入分类' } } }
-            });
+            if (incCats.length === 0) {
+                incomeCanvas.style.display = 'none';
+                incomeEmpty.style.display = 'block';
+            } else {
+                incomeCanvas.style.display = 'block';
+                incomeEmpty.style.display = 'none';
+                incomeChart = new Chart(incomeCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: incCats.map(c => c[0]),
+                        datasets: [{
+                            data: incCats.map(c => c[1]),
+                            backgroundColor: ['#52c41a', '#73d13d', '#95de64', '#b7eb8f', '#d9f7be', '#f6ffed']
+                        }]
+                    },
+                    options: {
+                    responsive: true,
+                    plugins: {
+                        title: { display: true, text: '收入分类' },
+                        datalabels: {
+                            color: '#333',
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 10,
+                            font: { size: 12 },
+                            formatter: function(value, context) {
+                                const label = context.chart.data.labels[context.dataIndex];
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}\n${percentage}%`;
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ¥${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        },
+                        legend: { display: false }
+                    }
+                }
+                });
+            }
         }
         
         // 加载日历
@@ -938,16 +1379,256 @@
             reader.readAsText(file);
         }
         
-        // 清空数据
-        function clearAllData() {
-            if (!confirm('确定要清空所有数据吗？此操作不可恢复！')) return;
-            if (!confirm('再次确认：真的要清空所有数据吗？')) return;
+        // 切换数据格式
+        function switchDataFormat() {
+            const format = document.getElementById('dataFormat').value;
+            document.getElementById('jsonButtons').style.display = format === 'json' ? 'flex' : 'none';
+            document.getElementById('csvButtons').style.display = format === 'csv' ? 'flex' : 'none';
+        }
+
+        // 导出 CSV
+        function exportCSV() {
+            if (records.length === 0) {
+                alert('暂无记录可导出');
+                return;
+            }
             
+            let csv = '\uFEFF时间,类型,分类,金额,备注\n';
+            records.forEach(r => {
+                const type = r.amount > 0 ? '收入' : '支出';
+                const amount = Math.abs(r.amount).toFixed(2);
+                const note = (r.note || '').replace(/,/g, '，');
+                csv += `${r.time},${type},${r.category},${amount},${note}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `记账数据_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+        }
+
+        // 固定收支功能
+        function toggleRecurringPanel() {
+            const panel = document.getElementById('addRecurringPanel');
+            panel.classList.toggle('expanded');
+            if (panel.classList.contains('expanded')) {
+                updateRecurringCategoryOptions();
+                document.getElementById('recurringCategory').focus();
+            }
+        }
+
+        function updateRecurringCategoryOptions() {
+            const type = document.getElementById('recurringType').value;
+            const select = document.getElementById('recurringCategory');
+            const cats = categories[type];
+            
+            let html = '<option value="">选择分类</option>';
+            Object.keys(cats).forEach(cat => {
+                html += `<option value="${cat}">${cat}</option>`;
+                // 添加子分类
+                (cats[cat] || []).forEach(sub => {
+                    html += `<option value="${sub}">&nbsp;&nbsp;└ ${sub}</option>`;
+                });
+            });
+            
+            select.innerHTML = html;
+        }
+
+        function renderRecurringList() {
+            const list = document.getElementById('recurringList');
+            if (recurring.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">暂无固定收支设置</div>';
+                return;
+            }
+
+            list.innerHTML = recurring.map((item, index) => `
+                <div class="category-manage-item">
+                    <div style="flex: 1;">
+                        <span style="font-weight: bold;">${item.category}</span>
+                        <span style="color: ${item.type === 'income' ? '#52c41a' : '#f5222d'}; margin-left: 10px;">
+                            ${item.type === 'income' ? '+' : '-'}¥${Math.abs(item.amount).toFixed(2)}
+                        </span>
+                        <span style="color: #666; font-size: 12px; margin-left: 10px;">每月${item.day}号</span>
+                        ${item.note ? `<span style="color: #999; font-size: 12px; margin-left: 10px;">(${item.note})</span>` : ''}
+                    </div>
+                    <div class="cat-actions">
+                        <button class="btn-small ${item.enabled ? 'btn-success' : 'btn-secondary'}" onclick="toggleRecurring(${index})" title="${item.enabled ? '禁用' : '启用'}">
+                            ${item.enabled ? '✓' : '✗'}
+                        </button>
+                        <button class="btn-small btn-delete" onclick="deleteRecurring(${index})" title="删除">×</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addRecurring() {
+            const type = document.getElementById('recurringType').value;
+            const category = document.getElementById('recurringCategory').value;
+            const amount = parseFloat(document.getElementById('recurringAmount').value);
+            const day = parseInt(document.getElementById('recurringDay').value);
+            const note = document.getElementById('recurringNote').value.trim();
+
+            if (!category) {
+                alert('请选择分类');
+                return;
+            }
+            if (!amount || amount <= 0) {
+                alert('请输入正确的金额');
+                return;
+            }
+            if (!day || day < 1 || day > 31) {
+                alert('请输入正确的日期（1-31）');
+                return;
+            }
+
+            recurring.push({
+                type: type,
+                category: category,
+                amount: amount,
+                day: day,
+                note: note,
+                enabled: true
+            });
+
+            localStorage.setItem('accounting_recurring', JSON.stringify(recurring));
+            renderRecurringList();
+            toggleRecurringPanel();
+
+            // 清空表单
+            document.getElementById('recurringCategory').innerHTML = '<option value="">选择分类</option>';
+            document.getElementById('recurringAmount').value = '';
+            document.getElementById('recurringDay').value = '';
+            document.getElementById('recurringNote').value = '';
+
+            alert('固定收支添加成功！');
+        }
+
+        function toggleRecurring(index) {
+            recurring[index].enabled = !recurring[index].enabled;
+            localStorage.setItem('accounting_recurring', JSON.stringify(recurring));
+            renderRecurringList();
+        }
+
+        function deleteRecurring(index) {
+            if (!confirm('确定要删除这条固定收支吗？')) return;
+            recurring.splice(index, 1);
+            localStorage.setItem('accounting_recurring', JSON.stringify(recurring));
+            renderRecurringList();
+        }
+
+        function checkRecurringToday() {
+            const today = new Date().getDate();
+            const dueItems = recurring.filter(item => item.enabled && item.day === today);
+            
+            if (dueItems.length > 0) {
+                const itemNames = dueItems.map(item => item.category).join('、');
+                if (confirm(`今天有以下固定收支需要记录：${itemNames}\n\n是否自动记录？`)) {
+                    dueItems.forEach(item => {
+                        const record = {
+                            time: new Date().toISOString(),
+                            category: item.category,
+                            amount: item.type === 'income' ? item.amount : -item.amount,
+                            note: item.note || '固定收支'
+                        };
+                        records.unshift(record);
+                    });
+                    localStorage.setItem('accounting_records', JSON.stringify(records));
+                    updateStats();
+                    renderRecords();
+                    alert(`已自动记录 ${dueItems.length} 条固定收支`);
+                }
+            }
+        }
+
+        // 导入 CSV
+        function importCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const lines = e.target.result.split('\n');
+                    const newRecords = [];
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        const parts = line.split(',');
+                        if (parts.length >= 4) {
+                            const time = parts[0];
+                            const type = parts[1];
+                            const category = parts[2];
+                            const amount = parseFloat(parts[3]);
+                            const note = parts[4] || '';
+                            
+                            if (time && category && !isNaN(amount)) {
+                                newRecords.push({
+                                    time: time,
+                                    category: category,
+                                    amount: type === '收入' ? amount : -amount,
+                                    note: note,
+                                    tags: []
+                                });
+                            }
+                        }
+                    }
+                    
+                    if (newRecords.length > 0) {
+                        records = newRecords.concat(records);
+                        localStorage.setItem('accounting_records', JSON.stringify(records));
+                        updateStats();
+                        renderRecords();
+                        alert(`成功导入 ${newRecords.length} 条记录！`);
+                    } else {
+                        alert('未找到有效记录');
+                    }
+                } catch (err) {
+                    alert('导入失败：' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 显示清空数据弹窗
+        function showClearDataModal() {
+            document.getElementById('clearDataModal').classList.add('active');
+            document.getElementById('clearConfirmInput').value = '';
+            document.getElementById('clearConfirmInput').focus();
+        }
+
+        // 关闭清空数据弹窗
+        function closeClearDataModal() {
+            document.getElementById('clearDataModal').classList.remove('active');
+        }
+
+        // 确认清空所有数据
+        function confirmClearAllData() {
+            const input = document.getElementById('clearConfirmInput').value;
+            if (input !== 'DELETE') {
+                alert('请输入 "DELETE" 以确认删除');
+                return;
+            }
+            
+            // 清空所有数据
             records = [];
+            categories = JSON.parse(JSON.stringify(defaultCategories));
+            budget = { monthly: 0 };
+            securityData = {};
+            recurring = [];
+            
             localStorage.removeItem('accounting_records');
-            updateStats();
-            renderRecords();
-            alert('数据已清空');
+            localStorage.removeItem('accounting_categories');
+            localStorage.removeItem('accounting_budget');
+            localStorage.removeItem('accounting_security');
+            localStorage.removeItem('accounting_recurring');
+            
+            closeClearDataModal();
+            alert('所有数据已清空，页面将刷新');
+            location.reload();
         }
 
         // 分类管理功能
@@ -967,36 +1648,168 @@
             let html = '';
             catKeys.forEach((cat, index) => {
                 const subs = cats[cat] || [];
+                const hasSubs = subs.length > 0;
                 html += `
-                    <div class="category-manage-item">
-                        <div style="flex: 1;">
-                            <div class="cat-name">${cat}</div>
-                            ${subs.length > 0 ? `
-                                <div class="subcategory-list">
+                    <div class="category-section">
+                        <div class="category-header" onclick="toggleCategoryExpand('${cat}')">
+                            <span class="expand-icon">▶</span>
+                            <span class="cat-name">${cat}</span>
+                            ${hasSubs ? `<span style="color: #999; font-size: 12px; margin-right: 10px;">(${subs.length}个子类)</span>` : ''}
+                            <div class="cat-actions" onclick="event.stopPropagation();">
+                                <button class="btn-small" onclick="event.stopPropagation(); moveCategoryToTop('${cat}');" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;background:#f0f0f0;color:#999;"' : 'style="background:#1890ff;color:white;"'} title="置顶">🔝</button>
+                                <button class="btn-small btn-up" onclick="event.stopPropagation(); moveCategory('${cat}', -1);" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="上移">↑</button>
+                                <button class="btn-small btn-down" onclick="event.stopPropagation(); moveCategory('${cat}', 1);" ${index === catKeys.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="下移">↓</button>
+                                <button class="btn-small" onclick="event.stopPropagation(); showSortPanel('${cat}');" style="background:#faad14;color:white;" title="数字排序">#</button>
+                                <button class="btn-small btn-add" onclick="event.stopPropagation(); addSubcategoryPrompt('${cat}');" title="添加子分类">+</button>
+                                <button class="btn-small btn-delete" onclick="event.stopPropagation(); deleteCategory('${cat}');" title="删除">×</button>
+                            </div>
+                        </div>
+                        <div class="category-content" id="cat-content-${cat}">
+                            ${hasSubs ? `
+                                <div class="subcategory-list expanded" id="cat-subs-${cat}">
                                     ${subs.map((sub, subIndex) => `
                                         <div class="subcategory-item">
                                             <span>${sub}</span>
                                             <div class="cat-actions">
-                                                <button class="btn-small btn-up" onclick="moveSubcategory('${cat}', ${subIndex}, -1)" ${subIndex === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↑</button>
-                                                <button class="btn-small btn-down" onclick="moveSubcategory('${cat}', ${subIndex}, 1)" ${subIndex === subs.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↓</button>
-                                                <button class="btn-small btn-delete" onclick="deleteSubcategory('${cat}', '${sub}')">删除</button>
+                                                <button class="btn-small btn-up" onclick="moveSubcategory('${cat}', ${subIndex}, -1)" ${subIndex === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="上移">↑</button>
+                                                <button class="btn-small btn-down" onclick="moveSubcategory('${cat}', ${subIndex}, 1)" ${subIndex === subs.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''} title="下移">↓</button>
+                                                <button class="btn-small btn-delete" onclick="deleteSubcategory('${cat}', '${sub}')" title="删除">×</button>
                                             </div>
                                         </div>
                                     `).join('')}
                                 </div>
-                            ` : ''}
-                        </div>
-                        <div class="cat-actions">
-                            <button class="btn-small btn-up" onclick="moveCategory('${cat}', -1)" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↑</button>
-                            <button class="btn-small btn-down" onclick="moveCategory('${cat}', 1)" ${index === catKeys.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↓</button>
-                            <button class="btn-small btn-add" onclick="addSubcategoryPrompt('${cat}')">+子类</button>
-                            <button class="btn-small btn-delete" onclick="deleteCategory('${cat}')">删除</button>
+                            ` : '<div style="color: #999; font-size: 13px; padding: 10px;">暂无子分类，点击右上角 + 添加</div>'}
                         </div>
                     </div>
                 `;
             });
             
             list.innerHTML = html || '<div style="text-align: center; color: #999; padding: 20px;">暂无分类</div>';
+        }
+
+        function toggleCategoryExpand(catName) {
+            const header = document.querySelector(`#cat-content-${catName}`).previousElementSibling;
+            const content = document.getElementById(`cat-content-${catName}`);
+            header.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+        }
+
+        function toggleAddCategoryPanel() {
+            const panel = document.getElementById('addCategoryPanel');
+            panel.classList.toggle('expanded');
+            // 关闭排序面板
+            document.getElementById('sortCategoryPanel').classList.remove('expanded');
+            if (panel.classList.contains('expanded')) {
+                document.getElementById('newCategoryName').focus();
+            }
+        }
+
+        function toggleSortCategoryPanel() {
+            const panel = document.getElementById('sortCategoryPanel');
+            panel.classList.toggle('expanded');
+            // 关闭添加面板
+            document.getElementById('addCategoryPanel').classList.remove('expanded');
+            if (panel.classList.contains('expanded')) {
+                document.getElementById('sortCategoryIndex').focus();
+            }
+        }
+
+        function showSortPanel(catName) {
+            selectedCategoryForSort = catName;
+            const panel = document.getElementById('sortCategoryPanel');
+            panel.classList.add('expanded');
+            // 关闭添加面板
+            document.getElementById('addCategoryPanel').classList.remove('expanded');
+            document.getElementById('sortCategoryIndex').value = '';
+            document.getElementById('sortCategoryIndex').focus();
+            // 显示当前选中的分类
+            const cats = categories[categoryManageType];
+            const keys = Object.keys(cats);
+            const currentIndex = keys.indexOf(catName) + 1;
+            document.getElementById('sortCategoryIndex').placeholder = `当前第${currentIndex}位，输入新位置`;
+        }
+
+        function sortCategoryByNumber() {
+            if (!selectedCategoryForSort) {
+                alert('请先选择一个分类');
+                return;
+            }
+            
+            const targetIndex = parseInt(document.getElementById('sortCategoryIndex').value);
+            if (!targetIndex || targetIndex < 1) {
+                alert('请输入有效的数字（从1开始）');
+                return;
+            }
+            
+            const cats = categories[categoryManageType];
+            const keys = Object.keys(cats);
+            const currentIndex = keys.indexOf(selectedCategoryForSort);
+            
+            if (currentIndex < 0) {
+                alert('分类不存在');
+                return;
+            }
+            
+            // 目标位置（转换为0-based索引）
+            const newIndex = Math.min(targetIndex - 1, keys.length - 1);
+            
+            if (newIndex === currentIndex) {
+                alert('该分类已经在该位置');
+                return;
+            }
+            
+            // 重新排序
+            const newCats = {};
+            let inserted = false;
+            
+            keys.forEach((key, i) => {
+                if (key === selectedCategoryForSort) {
+                    return; // 跳过当前分类，稍后插入
+                }
+                
+                if (i === newIndex && !inserted) {
+                    newCats[selectedCategoryForSort] = cats[selectedCategoryForSort];
+                    inserted = true;
+                }
+                
+                newCats[key] = cats[key];
+            });
+            
+            // 如果还没插入（说明要放到最后）
+            if (!inserted) {
+                newCats[selectedCategoryForSort] = cats[selectedCategoryForSort];
+            }
+            
+            categories[categoryManageType] = newCats;
+            saveCategories();
+            renderCategoryManageList();
+            renderCategories();
+            toggleSortCategoryPanel();
+            alert(`已将「${selectedCategoryForSort}」移动到第${targetIndex}位`);
+            selectedCategoryForSort = '';
+        }
+
+        function moveCategoryToTop(catName) {
+            const cats = categories[categoryManageType];
+            const keys = Object.keys(cats);
+            const index = keys.indexOf(catName);
+            if (index <= 0) return; // 已经在顶部或不存在
+            
+            // 创建新对象，将选中的分类放到第一个
+            const newCats = {};
+            newCats[catName] = cats[catName]; // 先放选中的
+            
+            // 再放其他的
+            keys.forEach(key => {
+                if (key !== catName) {
+                    newCats[key] = cats[key];
+                }
+            });
+            
+            categories[categoryManageType] = newCats;
+            saveCategories();
+            renderCategoryManageList();
+            renderCategories();
         }
 
         function moveCategory(catName, direction) {
@@ -1041,6 +1854,7 @@
         }
 
         function addNewCategory() {
+            const type = document.getElementById('newCategoryType').value;
             const name = document.getElementById('newCategoryName').value.trim();
             const parent = document.getElementById('newCategoryParent').value.trim();
             
@@ -1051,12 +1865,12 @@
             
             if (parent) {
                 // 添加子分类
-                if (!categories[categoryManageType][parent]) {
+                if (!categories[type][parent]) {
                     alert('父分类不存在：' + parent);
                     return;
                 }
-                if (!categories[categoryManageType][parent].includes(name)) {
-                    categories[categoryManageType][parent].push(name);
+                if (!categories[type][parent].includes(name)) {
+                    categories[type][parent].push(name);
                     alert('子分类添加成功！');
                 } else {
                     alert('该子分类已存在');
@@ -1064,11 +1878,11 @@
                 }
             } else {
                 // 添加主分类
-                if (categories[categoryManageType][name]) {
+                if (categories[type][name]) {
                     alert('该分类已存在');
                     return;
                 }
-                categories[categoryManageType][name] = [];
+                categories[type][name] = [];
                 alert('分类添加成功！');
             }
             
@@ -1077,6 +1891,7 @@
             renderCategories();
             document.getElementById('newCategoryName').value = '';
             document.getElementById('newCategoryParent').value = '';
+            toggleAddCategoryPanel();
         }
 
         function addSubcategoryPrompt(parentCat) {
