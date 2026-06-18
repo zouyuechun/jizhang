@@ -197,6 +197,42 @@
             width: 90%;
         }
         .empty-state { text-align: center; padding: 40px; color: #999; }
+        .category-manage-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .category-manage-item .cat-name { flex: 1; font-weight: 500; }
+        .category-manage-item .cat-actions { display: flex; gap: 8px; }
+        .category-manage-item .btn-small {
+            padding: 4px 10px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-up { background: #1890ff; color: white; }
+        .btn-down { background: #52c41a; color: white; }
+        .btn-delete { background: #f5222d; color: white; }
+        .btn-add { background: #faad14; color: white; }
+        .subcategory-list {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+        .subcategory-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: #fafafa;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -261,6 +297,75 @@
             <input type="password" id="resetPwd" placeholder="新密码" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 12px;">
             <input type="password" id="resetPwd2" placeholder="确认新密码" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 15px;">
             <button onclick="saveNewPassword()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">保存新密码</button>
+        </div>
+
+        <!-- 使用手册 -->
+        <div id="manualPanel" style="background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 600px; width: 95%; max-height: 85vh; overflow-y: auto; display: none;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 40px; margin-bottom: 10px;">📖</div>
+                <h2 style="color: #333;">智能记账软件使用手册</h2>
+                <p style="color: #666; font-size: 14px;">首次使用，请仔细阅读以下内容</p>
+            </div>
+            
+            <div style="background: #fff2f0; border: 1px solid #ffccc7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <h3 style="color: #cf1322; font-size: 16px; margin-bottom: 10px;">⚠️ 重要提醒</h3>
+                <ul style="color: #5c0011; font-size: 14px; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>数据只保存在你的设备上</strong>，不会上传到任何服务器</li>
+                    <li><strong>清除浏览器数据会导致所有记录丢失！</strong></li>
+                    <li><strong>换手机/电脑无法自动同步数据</strong></li>
+                    <li><strong>忘记密码可用密保问题找回</strong></li>
+                    <li><strong>忘记密保答案将无法恢复数据！</strong></li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #333; font-size: 16px; margin-bottom: 10px;">📋 快速开始</h3>
+                <ol style="font-size: 14px; padding-left: 20px; line-height: 2; color: #555;">
+                    <li>记支出：点击「支出」→ 输入金额 → 选择分类 → 保存</li>
+                    <li>记收入：点击「收入」→ 输入金额 → 选择分类 → 保存</li>
+                    <li>查看统计：切换「收支趋势」「分类统计」「日历视图」</li>
+                    <li>设置预算：在预算区域输入金额，查看使用进度</li>
+                </ol>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #333; font-size: 16px; margin-bottom: 10px;">💾 数据备份（必看！）</h3>
+                <div style="background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px; padding: 15px; font-size: 14px; color: #389e0d; line-height: 1.8;">
+                    <p><strong>强烈建议每次记账后都备份！</strong></p>
+                    <p>备份方法：</p>
+                    <ol style="padding-left: 20px;">
+                        <li>点击「导出JSON」按钮</li>
+                        <li>发送到微信文件传输助手</li>
+                        <li>或保存到 iCloud/百度网盘</li>
+                    </ol>
+                    <p style="margin-top: 10px;">⚠️ 如果不备份，清除浏览器数据后记录将全部丢失！</p>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #333; font-size: 16px; margin-bottom: 10px;">🔐 密码与密保</h3>
+                <ul style="font-size: 14px; padding-left: 20px; line-height: 1.8; color: #555;">
+                    <li>忘记密码：点击「忘记密码」→ 回答密保问题 → 重置密码</li>
+                    <li>密保答案区分大小写，请牢记</li>
+                    <li>建议把密保答案写在安全的地方</li>
+                </ul>
+            </div>
+
+            <div style="background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <h3 style="color: #096dd9; font-size: 15px; margin-bottom: 8px;">💡 隐私说明</h3>
+                <p style="font-size: 13px; color: #0050b3; line-height: 1.6;">
+                    每个人使用都是独立的，你的数据只存在你自己的设备上。
+                    即使别人使用同一个软件，也完全看不到你的记录。
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <label style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px; font-size: 14px; color: #555; cursor: pointer;">
+                    <input type="checkbox" id="manualConfirm" style="width: 18px; height: 18px;">
+                    <span>我已阅读并理解以上内容</span>
+                </label>
+                <button onclick="confirmManual()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">开始使用记账软件</button>
+            </div>
         </div>
     </div>
 
@@ -380,6 +485,24 @@
                 <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清空</button>
             </div>
         </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h2>📂 分类管理</h2>
+            <div class="tabs">
+                <button class="tab active" onclick="switchCategoryType('expense')">支出分类</button>
+                <button class="tab" onclick="switchCategoryType('income')">收入分类</button>
+            </div>
+            <div id="categoryManageList" style="max-height: 400px; overflow-y: auto;"></div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                <h4 style="margin-bottom: 10px; font-size: 14px;">添加新分类</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="newCategoryName" placeholder="分类名称" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                    <input type="text" id="newCategoryParent" placeholder="父分类（可选）" style="flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                    <button class="btn btn-add" onclick="addNewCategory()" style="padding: 8px 16px; border-radius: 6px;">➕ 添加</button>
+                </div>
+                <p style="font-size: 12px; color: #999; margin-top: 8px;">提示：父分类留空则添加主分类，填写父分类名称则添加子分类</p>
+            </div>
+        </div>
     </div>
     
     <!-- 详情弹窗 -->
@@ -392,8 +515,8 @@
     </div>
 
     <script>
-        // 分类数据
-        const categories = {
+        // 默认分类数据
+        const defaultCategories = {
             expense: {
                 "餐饮": ["早餐", "午餐", "晚餐", "夜宵", "饮品", "做饭买菜食材", "水果", "零食"],
                 "交通": ["滴滴打车", "花小猪", "美团打车", "腾讯打车", "高德打车", "百度打车", "顺风车/私家车"],
@@ -434,6 +557,10 @@
                 "其他收入": []
             }
         };
+
+        // 从 localStorage 加载分类数据，如果没有则使用默认数据
+        let categories = JSON.parse(localStorage.getItem('accounting_categories')) || JSON.parse(JSON.stringify(defaultCategories));
+        let categoryManageType = 'expense';
         
         // 数据存储
         let records = JSON.parse(localStorage.getItem('accounting_records') || '[]');
@@ -452,6 +579,7 @@
             renderRecords();
             loadBudget();
             loadTrendChart();
+            renderCategoryManageList();
         });
         
         // 切换类型
@@ -822,6 +950,180 @@
             alert('数据已清空');
         }
 
+        // 分类管理功能
+        function switchCategoryType(type) {
+            categoryManageType = type;
+            document.querySelectorAll('.card .tabs .tab').forEach((t, i) => {
+                t.classList.toggle('active', i === (type === 'expense' ? 0 : 1));
+            });
+            renderCategoryManageList();
+        }
+
+        function renderCategoryManageList() {
+            const list = document.getElementById('categoryManageList');
+            const cats = categories[categoryManageType];
+            const catKeys = Object.keys(cats);
+            
+            let html = '';
+            catKeys.forEach((cat, index) => {
+                const subs = cats[cat] || [];
+                html += `
+                    <div class="category-manage-item">
+                        <div style="flex: 1;">
+                            <div class="cat-name">${cat}</div>
+                            ${subs.length > 0 ? `
+                                <div class="subcategory-list">
+                                    ${subs.map((sub, subIndex) => `
+                                        <div class="subcategory-item">
+                                            <span>${sub}</span>
+                                            <div class="cat-actions">
+                                                <button class="btn-small btn-up" onclick="moveSubcategory('${cat}', ${subIndex}, -1)" ${subIndex === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↑</button>
+                                                <button class="btn-small btn-down" onclick="moveSubcategory('${cat}', ${subIndex}, 1)" ${subIndex === subs.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↓</button>
+                                                <button class="btn-small btn-delete" onclick="deleteSubcategory('${cat}', '${sub}')">删除</button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="cat-actions">
+                            <button class="btn-small btn-up" onclick="moveCategory('${cat}', -1)" ${index === 0 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↑</button>
+                            <button class="btn-small btn-down" onclick="moveCategory('${cat}', 1)" ${index === catKeys.length - 1 ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>↓</button>
+                            <button class="btn-small btn-add" onclick="addSubcategoryPrompt('${cat}')">+子类</button>
+                            <button class="btn-small btn-delete" onclick="deleteCategory('${cat}')">删除</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html || '<div style="text-align: center; color: #999; padding: 20px;">暂无分类</div>';
+        }
+
+        function moveCategory(catName, direction) {
+            const cats = categories[categoryManageType];
+            const keys = Object.keys(cats);
+            const index = keys.indexOf(catName);
+            if (index < 0) return;
+            
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= keys.length) return;
+            
+            // 交换位置
+            const newCats = {};
+            keys.forEach((key, i) => {
+                if (i === index) {
+                    newCats[keys[newIndex]] = cats[keys[newIndex]];
+                } else if (i === newIndex) {
+                    newCats[keys[index]] = cats[keys[index]];
+                } else {
+                    newCats[key] = cats[key];
+                }
+            });
+            
+            categories[categoryManageType] = newCats;
+            saveCategories();
+            renderCategoryManageList();
+            renderCategories();
+        }
+
+        function moveSubcategory(parentCat, subIndex, direction) {
+            const subs = categories[categoryManageType][parentCat];
+            if (!subs || subs.length < 2) return;
+            
+            const newIndex = subIndex + direction;
+            if (newIndex < 0 || newIndex >= subs.length) return;
+            
+            // 交换
+            [subs[subIndex], subs[newIndex]] = [subs[newIndex], subs[subIndex]];
+            saveCategories();
+            renderCategoryManageList();
+            renderCategories();
+        }
+
+        function addNewCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            const parent = document.getElementById('newCategoryParent').value.trim();
+            
+            if (!name) {
+                alert('请输入分类名称');
+                return;
+            }
+            
+            if (parent) {
+                // 添加子分类
+                if (!categories[categoryManageType][parent]) {
+                    alert('父分类不存在：' + parent);
+                    return;
+                }
+                if (!categories[categoryManageType][parent].includes(name)) {
+                    categories[categoryManageType][parent].push(name);
+                    alert('子分类添加成功！');
+                } else {
+                    alert('该子分类已存在');
+                    return;
+                }
+            } else {
+                // 添加主分类
+                if (categories[categoryManageType][name]) {
+                    alert('该分类已存在');
+                    return;
+                }
+                categories[categoryManageType][name] = [];
+                alert('分类添加成功！');
+            }
+            
+            saveCategories();
+            renderCategoryManageList();
+            renderCategories();
+            document.getElementById('newCategoryName').value = '';
+            document.getElementById('newCategoryParent').value = '';
+        }
+
+        function addSubcategoryPrompt(parentCat) {
+            const name = prompt('请输入子分类名称：');
+            if (!name || !name.trim()) return;
+            
+            const trimmed = name.trim();
+            if (categories[categoryManageType][parentCat].includes(trimmed)) {
+                alert('该子分类已存在');
+                return;
+            }
+            
+            categories[categoryManageType][parentCat].push(trimmed);
+            saveCategories();
+            renderCategoryManageList();
+            renderCategories();
+            alert('子分类添加成功！');
+        }
+
+        function deleteCategory(catName) {
+            if (!confirm(`确定要删除分类"${catName}"吗？\n该分类下的所有子分类也会被删除！`)) return;
+            
+            delete categories[categoryManageType][catName];
+            saveCategories();
+            renderCategoryManageList();
+            renderCategories();
+            alert('分类已删除');
+        }
+
+        function deleteSubcategory(parentCat, subName) {
+            if (!confirm(`确定要删除子分类"${subName}"吗？`)) return;
+            
+            const subs = categories[categoryManageType][parentCat];
+            const index = subs.indexOf(subName);
+            if (index > -1) {
+                subs.splice(index, 1);
+                saveCategories();
+                renderCategoryManageList();
+                renderCategories();
+                alert('子分类已删除');
+            }
+        }
+
+        function saveCategories() {
+            localStorage.setItem('accounting_categories', JSON.stringify(categories));
+        }
+
         // 密码和密保管理
         let securityData = JSON.parse(localStorage.getItem('accounting_security') || '{}');
 
@@ -873,6 +1175,27 @@
             document.getElementById('setupPanel').style.display = 'none';
             document.getElementById('forgotPanel').style.display = 'none';
             document.getElementById('resetPanel').style.display = 'block';
+            document.getElementById('manualPanel').style.display = 'none';
+        }
+
+        function showManualPanel() {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('setupPanel').style.display = 'none';
+            document.getElementById('forgotPanel').style.display = 'none';
+            document.getElementById('resetPanel').style.display = 'none';
+            document.getElementById('manualPanel').style.display = 'block';
+        }
+
+        function confirmManual() {
+            if (!document.getElementById('manualConfirm').checked) {
+                alert('请先勾选"我已阅读并理解以上内容"');
+                return;
+            }
+            securityData.manualRead = true;
+            localStorage.setItem('accounting_security', JSON.stringify(securityData));
+            alert('设置完成！欢迎使用智能记账软件');
+            document.getElementById('passwordLayer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
         }
 
         function saveSecuritySetup() {
@@ -908,18 +1231,23 @@
                     { question: q1, answer: a1 },
                     { question: q2, answer: a2 },
                     { question: q3, answer: a3 }
-                ]
+                ],
+                manualRead: false
             };
             localStorage.setItem('accounting_security', JSON.stringify(securityData));
-            alert('设置成功！请使用新密码登录');
-            showLoginPanel();
+            showManualPanel();
         }
 
         function checkPassword() {
             const input = document.getElementById('pwdInput').value;
             if (securityData.password && input === securityData.password) {
-                document.getElementById('passwordLayer').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'block';
+                // 检查是否已阅读使用手册
+                if (!securityData.manualRead) {
+                    showManualPanel();
+                } else {
+                    document.getElementById('passwordLayer').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                }
             } else {
                 document.getElementById('pwdError').style.display = 'block';
                 document.getElementById('pwdInput').value = '';
