@@ -210,11 +210,12 @@
         .category-manage-item .cat-name { flex: 1; font-weight: 500; }
         .category-manage-item .cat-actions { display: flex; gap: 8px; }
         .category-manage-item .btn-small {
-            padding: 4px 10px;
-            font-size: 12px;
+            padding: 8px 14px;
+            font-size: 14px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            min-width: 36px;
         }
         .btn-up { background: #1890ff; color: white; }
         .btn-down { background: #52c41a; color: white; }
@@ -232,20 +233,20 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 10px;
+            padding: 10px 14px;
             background: #fafafa;
-            border-radius: 4px;
-            margin-bottom: 4px;
-            font-size: 13px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 14px;
         }
         .category-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 15px;
+            padding: 16px 20px;
             background: #f0f0f0;
-            border-radius: 8px;
-            margin-bottom: 8px;
+            border-radius: 10px;
+            margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -254,7 +255,7 @@
         }
         .category-header .cat-name {
             font-weight: bold;
-            font-size: 15px;
+            font-size: 17px;
             color: #333;
             flex: 1;
         }
@@ -695,9 +696,9 @@
                 </select>
             </div>
             <div id="jsonButtons" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
-                <button class="btn btn-primary" onclick="exportData()">📥 导出 JSON</button>
-                <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📤 导入 JSON</button>
+                <button class="btn btn-success" onclick="document.getElementById('importFile').click()" style="width: 100%; padding: 14px; font-size: 16px;">📤 导入 JSON</button>
                 <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(this)">
+                <button class="btn btn-primary" onclick="exportData()" style="width: 100%; padding: 14px; font-size: 16px;">📥 导出 JSON</button>
             </div>
             <div id="csvButtons" style="display: none; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                 <button class="btn btn-primary" onclick="exportCSV()">📥 导出 CSV</button>
@@ -705,7 +706,7 @@
                 <input type="file" id="importCSVFile" style="display: none;" accept=".csv" onchange="importCSV(this)">
             </div>
             <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
-                <button class="btn btn-danger" onclick="showClearDataModal()" style="background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);">⚠️ 格式化/清空所有数据</button>
+                <button class="btn btn-danger" onclick="showClearDataModal()" style="width: 100%; background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%); padding: 14px; font-size: 16px;">⚠️ 格式化/清空所有数据</button>
             </div>
         </div>
     </div>
@@ -799,6 +800,16 @@
 
         // 从 localStorage 加载分类数据，如果没有则使用默认数据
         let categories = JSON.parse(localStorage.getItem('accounting_categories')) || JSON.parse(JSON.stringify(defaultCategories));
+        
+        // 清理旧分类：将消费平台从主分类移除
+        const oldShoppingCategories = ['淘宝购物', '抖音购物', '京东购物', '闲鱼购物', '苹果商店'];
+        oldShoppingCategories.forEach(cat => {
+            if (categories.expense[cat]) {
+                delete categories.expense[cat];
+            }
+        });
+        // 保存清理后的分类
+        localStorage.setItem('accounting_categories', JSON.stringify(categories));
         let categoryManageType = 'expense';
         let selectedCategoryForSort = '';
         
