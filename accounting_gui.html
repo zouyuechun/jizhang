@@ -202,13 +202,65 @@
 <body>
     <!-- 密码验证层 -->
     <div id="passwordLayer" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 9999; display: flex; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 360px; width: 90%;">
+        <!-- 登录界面 -->
+        <div id="loginPanel" style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 360px; width: 90%;">
             <div style="font-size: 48px; margin-bottom: 20px;">🔒</div>
             <h2 style="margin-bottom: 10px; color: #333;">记账软件</h2>
             <p style="color: #666; margin-bottom: 25px; font-size: 14px;">请输入密码访问</p>
             <input type="password" id="pwdInput" placeholder="输入密码" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 15px; text-align: center;">
             <button onclick="checkPassword()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">进入</button>
             <p id="pwdError" style="color: #f5222d; margin-top: 15px; font-size: 14px; display: none;">密码错误</p>
+            <p style="margin-top: 15px; font-size: 13px;">
+                <a href="#" onclick="showForgotPanel()" style="color: #667eea; text-decoration: none;">忘记密码？</a>
+                <span style="color: #ccc; margin: 0 8px;">|</span>
+                <a href="#" onclick="showSetupPanel()" style="color: #667eea; text-decoration: none;">首次设置</a>
+            </p>
+        </div>
+
+        <!-- 首次设置密保 -->
+        <div id="setupPanel" style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 400px; width: 90%; display: none;">
+            <div style="font-size: 40px; margin-bottom: 15px;">⚙️</div>
+            <h2 style="margin-bottom: 10px; color: #333;">首次设置</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 13px;">设置密码和密保问题用于找回密码</p>
+            <input type="password" id="setupPwd" placeholder="设置登录密码" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 12px;">
+            <input type="password" id="setupPwd2" placeholder="确认密码" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 12px;">
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 13px; color: #666; margin-bottom: 4px;">密保问题1（可自定义）</label>
+                <input type="text" id="setupQ1" placeholder="输入密保问题，如：我母亲的名字是？" style="width: 100%; padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 6px;">
+                <input type="text" id="setupA1" placeholder="答案" style="width: 100%; padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 13px; color: #666; margin-bottom: 4px;">密保问题2（可自定义）</label>
+                <input type="text" id="setupQ2" placeholder="输入密保问题，如：我的幸运数字是？" style="width: 100%; padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 6px;">
+                <input type="text" id="setupA2" placeholder="答案" style="width: 100%; padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 13px; color: #666; margin-bottom: 4px;">密保问题3（可自定义）</label>
+                <input type="text" id="setupQ3" placeholder="输入密保问题，如：我最喜欢的食物是？" style="width: 100%; padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-bottom: 6px;">
+                <input type="text" id="setupA3" placeholder="答案" style="width: 100%; padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <button onclick="saveSecuritySetup()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">保存设置</button>
+            <p style="margin-top: 15px;"><a href="#" onclick="showLoginPanel()" style="color: #999; font-size: 13px;">返回登录</a></p>
+        </div>
+
+        <!-- 找回密码 -->
+        <div id="forgotPanel" style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 400px; width: 90%; display: none;">
+            <div style="font-size: 40px; margin-bottom: 15px;">🔑</div>
+            <h2 style="margin-bottom: 10px; color: #333;">找回密码</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 13px;">回答密保问题重置密码</p>
+            <div id="forgotQuestions" style="text-align: left; margin-bottom: 15px;"></div>
+            <button onclick="verifyAnswers()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #faad14 0%, #d48806 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">验证答案</button>
+            <p id="forgotError" style="color: #f5222d; margin-top: 15px; font-size: 14px; display: none;">答案不正确</p>
+            <p style="margin-top: 15px;"><a href="#" onclick="showLoginPanel()" style="color: #999; font-size: 13px;">返回登录</a></p>
+        </div>
+
+        <!-- 重置密码 -->
+        <div id="resetPanel" style="background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 360px; width: 90%; display: none;">
+            <div style="font-size: 40px; margin-bottom: 15px;">🔄</div>
+            <h2 style="margin-bottom: 10px; color: #333;">重置密码</h2>
+            <input type="password" id="resetPwd" placeholder="新密码" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 12px;">
+            <input type="password" id="resetPwd2" placeholder="确认新密码" style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 15px;">
+            <button onclick="saveNewPassword()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">保存新密码</button>
         </div>
     </div>
 
@@ -770,12 +822,102 @@
             alert('数据已清空');
         }
 
-        // 密码验证
-        const CORRECT_PASSWORD = '123456'; // 修改这里设置你的密码
+        // 密码和密保管理
+        let securityData = JSON.parse(localStorage.getItem('accounting_security') || '{}');
+
+        function initSecurity() {
+            // 如果没有设置过，显示首次设置界面
+            if (!securityData.password) {
+                showSetupPanel();
+            }
+        }
+
+        function showLoginPanel() {
+            document.getElementById('loginPanel').style.display = 'block';
+            document.getElementById('setupPanel').style.display = 'none';
+            document.getElementById('forgotPanel').style.display = 'none';
+            document.getElementById('resetPanel').style.display = 'none';
+        }
+
+        function showSetupPanel() {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('setupPanel').style.display = 'block';
+            document.getElementById('forgotPanel').style.display = 'none';
+            document.getElementById('resetPanel').style.display = 'none';
+        }
+
+        function showForgotPanel() {
+            if (!securityData.questions) {
+                alert('未设置密保问题，无法找回密码');
+                return;
+            }
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('setupPanel').style.display = 'none';
+            document.getElementById('forgotPanel').style.display = 'block';
+            document.getElementById('resetPanel').style.display = 'none';
+            document.getElementById('forgotError').style.display = 'none';
+
+            // 显示密保问题
+            let html = '';
+            securityData.questions.forEach((q, i) => {
+                html += `<div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 13px; color: #666; margin-bottom: 4px;">${q.question}</label>
+                    <input type="text" id="forgotA${i}" placeholder="请输入答案" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                </div>`;
+            });
+            document.getElementById('forgotQuestions').innerHTML = html;
+        }
+
+        function showResetPanel() {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('setupPanel').style.display = 'none';
+            document.getElementById('forgotPanel').style.display = 'none';
+            document.getElementById('resetPanel').style.display = 'block';
+        }
+
+        function saveSecuritySetup() {
+            const pwd = document.getElementById('setupPwd').value;
+            const pwd2 = document.getElementById('setupPwd2').value;
+            const q1 = document.getElementById('setupQ1').value.trim();
+            const a1 = document.getElementById('setupA1').value.trim();
+            const q2 = document.getElementById('setupQ2').value.trim();
+            const a2 = document.getElementById('setupA2').value.trim();
+            const q3 = document.getElementById('setupQ3').value.trim();
+            const a3 = document.getElementById('setupA3').value.trim();
+
+            if (!pwd || pwd.length < 4) {
+                alert('密码至少4位');
+                return;
+            }
+            if (pwd !== pwd2) {
+                alert('两次密码不一致');
+                return;
+            }
+            if (!q1 || !a1 || !q2 || !a2 || !q3 || !a3) {
+                alert('请设置3个密保问题及答案');
+                return;
+            }
+            if (q1.length < 3 || q2.length < 3 || q3.length < 3) {
+                alert('密保问题至少3个字');
+                return;
+            }
+
+            securityData = {
+                password: pwd,
+                questions: [
+                    { question: q1, answer: a1 },
+                    { question: q2, answer: a2 },
+                    { question: q3, answer: a3 }
+                ]
+            };
+            localStorage.setItem('accounting_security', JSON.stringify(securityData));
+            alert('设置成功！请使用新密码登录');
+            showLoginPanel();
+        }
 
         function checkPassword() {
             const input = document.getElementById('pwdInput').value;
-            if (input === CORRECT_PASSWORD) {
+            if (securityData.password && input === securityData.password) {
                 document.getElementById('passwordLayer').style.display = 'none';
                 document.getElementById('mainContainer').style.display = 'block';
             } else {
@@ -784,10 +926,47 @@
             }
         }
 
+        function verifyAnswers() {
+            if (!securityData.questions) return;
+
+            const allCorrect = securityData.questions.every((q, i) => {
+                const input = document.getElementById(`forgotA${i}`)?.value.trim();
+                return input === q.answer;
+            });
+
+            if (allCorrect) {
+                showResetPanel();
+            } else {
+                document.getElementById('forgotError').style.display = 'block';
+            }
+        }
+
+        function saveNewPassword() {
+            const pwd = document.getElementById('resetPwd').value;
+            const pwd2 = document.getElementById('resetPwd2').value;
+
+            if (!pwd || pwd.length < 4) {
+                alert('密码至少4位');
+                return;
+            }
+            if (pwd !== pwd2) {
+                alert('两次密码不一致');
+                return;
+            }
+
+            securityData.password = pwd;
+            localStorage.setItem('accounting_security', JSON.stringify(securityData));
+            alert('密码重置成功！请使用新密码登录');
+            showLoginPanel();
+        }
+
         // 回车键提交
         document.getElementById('pwdInput')?.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') checkPassword();
         });
+
+        // 初始化时检查是否需要首次设置
+        initSecurity();
     </script>
 </body>
 </html>
