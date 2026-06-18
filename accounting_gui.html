@@ -6,6 +6,7 @@
     <title>💰 智能记账软件</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-labels@1.1.0"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -599,6 +600,25 @@
             </div>
             
             <div id="chart-trend" class="chart-container">
+                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="trendExpenseBtn" onclick="switchTrendType('expense')" style="padding: 6px 16px; font-size: 14px;">支出</button>
+                    <button class="btn btn-secondary" id="trendIncomeBtn" onclick="switchTrendType('income')" style="padding: 6px 16px; font-size: 14px;">收入</button>
+                    <button class="btn btn-secondary" id="trendBalanceBtn" onclick="switchTrendType('balance')" style="padding: 6px 16px; font-size: 14px;">结余</button>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="switchTimeRange('day')" id="timeDay" style="padding: 4px 12px; font-size: 12px;">按日</button>
+                    <button class="btn btn-secondary" onclick="switchTimeRange('week')" id="timeWeek" style="padding: 4px 12px; font-size: 12px;">按周</button>
+                    <button class="btn btn-primary" onclick="switchTimeRange('month')" id="timeMonth" style="padding: 4px 12px; font-size: 12px;">按月</button>
+                    <button class="btn btn-secondary" onclick="switchTimeRange('quarter')" id="timeQuarter" style="padding: 4px 12px; font-size: 12px;">按季度</button>
+                    <button class="btn btn-secondary" onclick="switchTimeRange('year')" id="timeYear" style="padding: 4px 12px; font-size: 12px;">按年</button>
+                    <button class="btn btn-secondary" onclick="showCustomDateRange()" id="timeCustom" style="padding: 4px 12px; font-size: 12px;">自定义</button>
+                </div>
+                <div id="customDateRange" style="display: none; margin-bottom: 15px; text-align: center;">
+                    <input type="date" id="startDate" style="padding: 6px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                    <span style="margin: 0 10px;">至</span>
+                    <input type="date" id="endDate" style="padding: 6px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                    <button onclick="applyCustomDateRange()" style="margin-left: 10px; padding: 6px 16px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer;">查询</button>
+                </div>
                 <canvas id="trendChart" style="max-height: 300px;"></canvas>
             </div>
             
@@ -1004,18 +1024,22 @@
                 return;
             }
             
-            list.innerHTML = filteredRecords.slice(0, 20).map(r => `
-                <div class="record-item">
-                    <div>
+            list.innerHTML = filteredRecords.slice(0, 20).map((r, index) => `
+                <div class="record-item" style="position: relative;">
+                    <div style="flex: 1;">
                         <div class="record-category">${r.category}</div>
                         ${r.note ? `<div class="record-note">${r.note}</div>` : ''}
                         ${r.tags && r.tags.length > 0 ? `<div style="margin-top: 5px;">${r.tags.map(t => `<span style="display: inline-block; background: #f0f0f0; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #666; margin-right: 5px; cursor: pointer;" onclick="addTagFilter('${t}')">#${t}</span>`).join('')}</div>` : ''}
                     </div>
-                    <div style="text-align: right;">
+                    <div style="text-align: right; margin-right: 10px;">
                         <div class="record-amount ${r.amount > 0 ? 'income' : 'expense'}">
                             ${r.amount > 0 ? '+' : ''}${r.amount.toFixed(2)}
                         </div>
                         <div class="record-time">${r.time.slice(5, 16)}</div>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button onclick="editRecord(${index})" style="padding: 4px 8px; font-size: 12px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer;">编辑</button>
+                        <button onclick="deleteRecord(${index})" style="padding: 4px 8px; font-size: 12px; background: #f5222d; color: white; border: none; border-radius: 4px; cursor: pointer;">删除</button>
                     </div>
                 </div>
             `).join('');
@@ -1070,6 +1094,65 @@
                 renderRecords();
             }
         }
+
+        // 删除记录
+        function deleteRecord(index) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            
+            // 根据筛选状态获取实际索引
+            let filteredRecords = records;
+            if (activeTagFilters.length > 0) {
+                filteredRecords = records.filter(r => {
+                    const recordTags = r.tags || [];
+                    return activeTagFilters.some(filterTag => recordTags.includes(filterTag));
+                });
+            }
+            
+            const recordToDelete = filteredRecords[index];
+            const actualIndex = records.findIndex(r => r === recordToDelete);
+            
+            if (actualIndex > -1) {
+                records.splice(actualIndex, 1);
+                localStorage.setItem('accounting_records', JSON.stringify(records));
+                updateStats();
+                renderRecords();
+                alert('记录已删除');
+            }
+        }
+
+        // 编辑记录
+        function editRecord(index) {
+            // 根据筛选状态获取实际索引
+            let filteredRecords = records;
+            if (activeTagFilters.length > 0) {
+                filteredRecords = records.filter(r => {
+                    const recordTags = r.tags || [];
+                    return activeTagFilters.some(filterTag => recordTags.includes(filterTag));
+                });
+            }
+            
+            const record = filteredRecords[index];
+            const actualIndex = records.findIndex(r => r === record);
+            
+            if (actualIndex === -1) return;
+            
+            const newAmount = prompt(`修改金额（当前：${record.amount > 0 ? '+' : ''}${record.amount.toFixed(2)}）：`, Math.abs(record.amount).toFixed(2));
+            if (newAmount === null) return; // 用户取消
+            
+            const amount = parseFloat(newAmount);
+            if (isNaN(amount) || amount < 0) {
+                alert('请输入有效的金额');
+                return;
+            }
+            
+            // 保持原有的收入/支出类型
+            records[actualIndex].amount = record.amount > 0 ? amount : -amount;
+            localStorage.setItem('accounting_records', JSON.stringify(records));
+            
+            updateStats();
+            renderRecords();
+            alert('记录已修改');
+        }
         
         // 设置预算
         function setBudget() {
@@ -1110,44 +1193,214 @@
             else if (type === 'calendar') loadCalendar();
         }
         
-        // 加载趋势图
-        function loadTrendChart() {
-            const daily = {};
-            records.forEach(r => {
-                const day = r.time.slice(0, 10);
-                if (!daily[day]) daily[day] = { income: 0, expense: 0 };
-                if (r.amount > 0) daily[day].income += r.amount;
-                else daily[day].expense += Math.abs(r.amount);
+        // 当前趋势图类型
+        let currentTrendType = 'expense';
+        let currentTimeRange = 'month';
+        let customStartDate = null;
+        let customEndDate = null;
+
+        // 切换趋势图类型
+        function switchTrendType(type) {
+            currentTrendType = type;
+            
+            // 更新按钮样式
+            document.getElementById('trendExpenseBtn').className = type === 'expense' ? 'btn btn-primary' : 'btn btn-secondary';
+            document.getElementById('trendIncomeBtn').className = type === 'income' ? 'btn btn-primary' : 'btn btn-secondary';
+            document.getElementById('trendBalanceBtn').className = type === 'balance' ? 'btn btn-primary' : 'btn btn-secondary';
+            
+            loadTrendChart();
+        }
+
+        // 切换时间范围
+        function switchTimeRange(range) {
+            currentTimeRange = range;
+            customStartDate = null;
+            customEndDate = null;
+            
+            // 更新按钮样式
+            ['day', 'week', 'month', 'quarter', 'year', 'custom'].forEach(r => {
+                const btn = document.getElementById('time' + r.charAt(0).toUpperCase() + r.slice(1));
+                if (btn) {
+                    btn.className = r === range ? 'btn btn-primary' : 'btn btn-secondary';
+                }
             });
             
-            const days = Object.keys(daily).sort().slice(-30);
-            const incomeData = days.map(d => daily[d].income);
-            const expenseData = days.map(d => daily[d].expense);
+            // 隐藏自定义日期选择
+            document.getElementById('customDateRange').style.display = 'none';
+            
+            loadTrendChart();
+        }
+
+        // 显示自定义日期范围
+        function showCustomDateRange() {
+            switchTimeRange('custom');
+            document.getElementById('customDateRange').style.display = 'block';
+        }
+
+        // 应用自定义日期范围
+        function applyCustomDateRange() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            
+            if (!start || !end) {
+                alert('请选择开始和结束日期');
+                return;
+            }
+            
+            if (start > end) {
+                alert('开始日期不能晚于结束日期');
+                return;
+            }
+            
+            customStartDate = start;
+            customEndDate = end;
+            loadTrendChart();
+        }
+
+        // 获取周数
+        function getWeekNumber(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+            const yearStart = new Date(d.getFullYear(), 0, 1);
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return d.getFullYear() + '-W' + weekNo;
+        }
+
+        // 获取季度
+        function getQuarter(date) {
+            const month = parseInt(date.slice(5, 7));
+            const year = date.slice(0, 4);
+            const quarter = Math.ceil(month / 3);
+            return year + '-Q' + quarter;
+        }
+
+        // 加载趋势图
+        function loadTrendChart() {
+            const timeData = {};
+            
+            records.forEach(r => {
+                let key;
+                const date = r.time.slice(0, 10);
+                
+                switch(currentTimeRange) {
+                    case 'day':
+                        key = date;
+                        break;
+                    case 'week':
+                        key = getWeekNumber(date);
+                        break;
+                    case 'month':
+                        key = date.slice(0, 7);
+                        break;
+                    case 'quarter':
+                        key = getQuarter(date);
+                        break;
+                    case 'year':
+                        key = date.slice(0, 4);
+                        break;
+                    case 'custom':
+                        if (customStartDate && customEndDate) {
+                            if (date < customStartDate || date > customEndDate) {
+                                return; // 跳过不在范围内的记录
+                            }
+                            key = date;
+                        } else {
+                            key = date.slice(0, 7);
+                        }
+                        break;
+                    default:
+                        key = date.slice(0, 7);
+                }
+                
+                if (!timeData[key]) timeData[key] = { income: 0, expense: 0 };
+                if (r.amount > 0) timeData[key].income += r.amount;
+                else timeData[key].expense += Math.abs(r.amount);
+            });
+            
+            // 获取排序后的时间键
+            const timeKeys = Object.keys(timeData).sort();
+            
+            // 限制显示数量
+            let displayKeys = timeKeys;
+            if (currentTimeRange === 'day' && timeKeys.length > 30) {
+                displayKeys = timeKeys.slice(-30);
+            } else if (currentTimeRange === 'month' && timeKeys.length > 12) {
+                displayKeys = timeKeys.slice(-12);
+            }
+            
+            // 格式化标签
+            const labels = displayKeys.map(key => {
+                switch(currentTimeRange) {
+                    case 'day':
+                        return key.slice(5);
+                    case 'week':
+                        return 'W' + key.split('-W')[1];
+                    case 'month':
+                        return parseInt(key.slice(5, 7)) + '月';
+                    case 'quarter':
+                        return 'Q' + key.split('-Q')[1];
+                    case 'year':
+                        return key + '年';
+                    default:
+                        return key;
+                }
+            });
+            
+            let data, color, label;
+            if (currentTrendType === 'expense') {
+                data = displayKeys.map(k => timeData[k].expense);
+                color = '#1890ff';
+                label = '支出';
+            } else if (currentTrendType === 'income') {
+                data = displayKeys.map(k => timeData[k].income);
+                color = '#52c41a';
+                label = '收入';
+            } else {
+                data = displayKeys.map(k => timeData[k].income - timeData[k].expense);
+                color = '#faad14';
+                label = '结余';
+            }
             
             const ctx = document.getElementById('trendChart').getContext('2d');
             if (trendChart) trendChart.destroy();
             
             trendChart = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: days.map(d => d.slice(5)),
+                    labels: labels,
                     datasets: [{
-                        label: '收入',
-                        data: incomeData,
-                        borderColor: '#52c41a',
-                        backgroundColor: 'rgba(82, 196, 26, 0.1)',
-                        tension: 0.4
-                    }, {
-                        label: '支出',
-                        data: expenseData,
-                        borderColor: '#f5222d',
-                        backgroundColor: 'rgba(245, 34, 45, 0.1)',
-                        tension: 0.4
+                        label: label,
+                        data: data,
+                        backgroundColor: color,
+                        borderRadius: 4,
+                        barThickness: currentTimeRange === 'day' ? 12 : 20
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            display: true,
+                            color: '#333',
+                            font: { size: 10 },
+                            formatter: function(value) {
+                                return value !== 0 ? '¥' + (value >= 1000 ? (value/1000).toFixed(1) + 'k' : value.toFixed(0)) : '';
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value >= 1000 ? '¥' + (value/1000).toFixed(0) + 'k' : '¥' + value;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -1188,17 +1441,21 @@
                     responsive: true,
                     plugins: {
                         title: { display: true, text: '支出分类' },
-                        datalabels: {
-                            color: '#333',
-                            anchor: 'end',
-                            align: 'end',
-                            offset: 10,
-                            font: { size: 12 },
+                        labels: {
+                            render: 'label',
+                            arc: true,
+                            position: 'outside',
+                            fontSize: 12,
+                            fontStyle: 'bold',
+                            fontColor: '#333',
+                            textMargin: 8,
+                            overlap: false,
+                            showActualPercentages: true,
                             formatter: function(value, context) {
                                 const label = context.chart.data.labels[context.dataIndex];
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                return `${label}\n${percentage}%`;
+                                return label + '\n' + percentage + '%';
                             }
                         },
                         tooltip: {
@@ -1242,17 +1499,21 @@
                     responsive: true,
                     plugins: {
                         title: { display: true, text: '收入分类' },
-                        datalabels: {
-                            color: '#333',
-                            anchor: 'end',
-                            align: 'end',
-                            offset: 10,
-                            font: { size: 12 },
+                        labels: {
+                            render: 'label',
+                            arc: true,
+                            position: 'outside',
+                            fontSize: 12,
+                            fontStyle: 'bold',
+                            fontColor: '#333',
+                            textMargin: 8,
+                            overlap: false,
+                            showActualPercentages: true,
                             formatter: function(value, context) {
                                 const label = context.chart.data.labels[context.dataIndex];
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                return `${label}\n${percentage}%`;
+                                return label + '\n' + percentage + '%';
                             }
                         },
                         tooltip: {
