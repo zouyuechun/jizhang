@@ -2323,6 +2323,25 @@
             }
         }
 
+        // 检查是否已经有密码设置（用于控制"首次设置"按钮的显示）
+        function hasPasswordSet() {
+            return !!(securityData && securityData.password);
+        }
+
+        // 更新登录界面按钮显示状态
+        function updateLoginButtons() {
+            const setupLink = document.querySelector('a[onclick="showSetupPanel()"]');
+            if (setupLink && hasPasswordSet()) {
+                // 已有密码时，隐藏"首次设置"链接
+                setupLink.style.display = 'none';
+                // 同时隐藏分隔符
+                const separator = setupLink.previousElementSibling;
+                if (separator && separator.tagName === 'SPAN') {
+                    separator.style.display = 'none';
+                }
+            }
+        }
+
         function showLoginPanel() {
             document.getElementById('loginPanel').style.display = 'block';
             document.getElementById('setupPanel').style.display = 'none';
@@ -2331,6 +2350,11 @@
         }
 
         function showSetupPanel() {
+            // 安全校验：如果已经有密码设置，不允许通过"首次设置"进入
+            if (hasPasswordSet()) {
+                alert('密码已设置，如需修改请使用"忘记密码"功能');
+                return;
+            }
             document.getElementById('loginPanel').style.display = 'none';
             document.getElementById('setupPanel').style.display = 'block';
             document.getElementById('forgotPanel').style.display = 'none';
@@ -2484,6 +2508,7 @@
 
         // 初始化时检查是否需要首次设置
         initSecurity();
+        updateLoginButtons();
     </script>
 
     <!-- 软件使用说明 -->
