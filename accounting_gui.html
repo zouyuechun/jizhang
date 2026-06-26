@@ -718,11 +718,12 @@
                 <button class="btn btn-primary" onclick="exportData()" style="width: 100%; padding: 14px; font-size: 16px;">📥 导出 JSON</button>
             </div>
             <div id="csvButtons" style="display: none; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
-                <button class="btn btn-primary" onclick="exportCSV()">📥 导出 CSV</button>
                 <button class="btn btn-success" onclick="document.getElementById('importCSVFile').click()">📤 导入 CSV</button>
                 <input type="file" id="importCSVFile" style="display: none;" accept=".csv" onchange="importCSV(this)">
+                <button class="btn btn-primary" onclick="exportCSV()">📥 导出 CSV</button>
             </div>
             <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                <button class="btn btn-primary" onclick="exportAllData()" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 14px; font-size: 16px; margin-bottom: 10px;">📦 一键导出全部（JSON+CSV）</button>
                 <button class="btn btn-danger" onclick="showClearDataModal()" style="width: 100%; background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%); padding: 14px; font-size: 16px;">⚠️ 格式化/清空所有数据</button>
             </div>
         </div>
@@ -748,6 +749,28 @@
             <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
                 <button class="btn btn-secondary" onclick="selectNoSubcategory()" style="width: 100%;">不选子分类，直接使用「<span id="parentCatName"></span>」</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 导入数据选择弹窗 -->
+    <div class="modal" id="importChoiceModal">
+        <div class="modal-content" style="max-width: 420px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 40px; margin-bottom: 10px;">📥</div>
+                <h3 style="color: #333;">导入数据</h3>
+                <p style="color: #666; font-size: 14px; margin-top: 8px;">请选择导入方式</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <button class="btn btn-danger" onclick="handleImportChoice('clear')" style="padding: 16px; font-size: 16px; background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);">
+                    <div style="font-weight: bold; margin-bottom: 4px;">🗑️ 清空并导入</div>
+                    <div style="font-size: 13px; opacity: 0.9;">删除所有现有数据，只保留导入的数据</div>
+                </button>
+                <button class="btn btn-success" onclick="handleImportChoice('merge')" style="padding: 16px; font-size: 16px; background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);">
+                    <div style="font-weight: bold; margin-bottom: 4px;">➕ 合并导入</div>
+                    <div style="font-size: 13px; opacity: 0.9;">保留现有数据，将导入的数据追加到后面</div>
+                </button>
+            </div>
+            <button class="btn btn-secondary" onclick="closeImportChoiceModal()" style="width: 100%; padding: 12px;">取消</button>
         </div>
     </div>
 
@@ -794,9 +817,9 @@
                 "宠物花费": [],
                 "孝敬长辈": [],
                 "人情世故": [],
-                "平台服务费": ["淘宝", "抖音", "拼多多"],
+                "平台服务费": ["淘宝基础软件服务费", "抖音", "拼多多"],
                 "亏损": ["充值错误", "股票亏损"],
-                "Token充值": ["Kimi-K2.6充值", "DeepSeek充值", "Openai-GPT5.5充值", "智谱Ai充值", "Minimax-M2.7充值", "阿里巴巴Qwen充值", "Xiaomi充值", "Claude Code充值"],
+                "Token充值": ["Kimi-K2.6充值", "DeepSeek充值", "Openai-GPT5.5充值", "智谱GLM-5.2充值", "Minimax-M2.7充值", "阿里巴巴Qwen充值", "Xiaomi充值", "Claude Code充值"],
                 "项目投资": [],
                 "App Store商店": ["iCloud订阅"],
                 "淘宝推广": ["万象台"],
@@ -805,7 +828,7 @@
                 "其他支出": []
             },
             income: {
-                "店铺收入": ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值"],
+                "店铺收入": ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值", "我的世界", "天天酷跑", "和平营地", "和平精英", "王者营地", "王者荣耀", "天天爱消除", "荣耀值", "全明星觉醒", "王者荣耀世界", "逆战未来", "第五人格", "腾讯桌球", "街球艺术", "全民水浒", "节奏大师", "英雄傻", "火影忍者", "华夏", "梦幻诛仙", "全民小镇", "麻将来了", "圣斗士星矢", "跑跑卡丁车", "全民k歌", "全民农场", "pubg mobile", "火力苏打", "猫和老鼠", "傲世西游", "奇迹觉醒", "全民飞机", "问道", "热血传奇", "qq飞车", "穿越火线", "荣耀新三国", "武侠q传", "欢乐斗地主", "欢乐升级", "英雄联盟电竞经理", "全民冠军足球", "英雄联盟", "欢乐麻将", "红警ol", "全民突击", "迷你世界", "天龙八部", "光遇", "球球大作战", "塔瑞斯世界", "使命召唤", "万王之王", "抖音", "炫舞直播", "灌篮高手", "出发吧麦芬", "qq农场", "地下城与勇士"],
                 "投资收入": ["股票", "基金", "债券", "期货", "黄金", "白银"],
                 "工资收入": [],
                 "奖金收入": [],
@@ -826,7 +849,7 @@
             
             // 强制同步收入分类结构
             const correctIncomeStructure = {
-                "店铺收入": ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值"],
+                "店铺收入": ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值", "我的世界", "天天酷跑", "和平营地", "和平精英", "王者营地", "王者荣耀", "天天爱消除", "荣耀值", "全明星觉醒", "王者荣耀世界", "逆战未来", "第五人格", "腾讯桌球", "街球艺术", "全民水浒", "节奏大师", "英雄傻", "火影忍者", "华夏", "梦幻诛仙", "全民小镇", "麻将来了", "圣斗士星矢", "跑跑卡丁车", "全民k歌", "全民农场", "pubg mobile", "火力苏打", "猫和老鼠", "傲世西游", "奇迹觉醒", "全民飞机", "问道", "热血传奇", "qq飞车", "穿越火线", "荣耀新三国", "武侠q传", "欢乐斗地主", "欢乐升级", "英雄联盟电竞经理", "全民冠军足球", "英雄联盟", "欢乐麻将", "红警ol", "全民突击", "迷你世界", "天龙八部", "光遇", "球球大作战", "塔瑞斯世界", "使命召唤", "万王之王", "抖音", "炫舞直播", "灌篮高手", "出发吧麦芬", "qq农场", "地下城与勇士"],
                 "投资收入": ["股票", "基金", "债券", "期货", "黄金", "白银"],
                 "工资收入": [],
                 "奖金收入": [],
@@ -855,7 +878,7 @@
             categories.income["投资收入"] = ["股票", "基金", "债券", "期货", "黄金", "白银"];
             
             // 强制更新店铺收入子分类顺序
-            categories.income["店铺收入"] = ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值"];
+            categories.income["店铺收入"] = ["心悦会员", "腾讯视频", "苹果卡折扣", "游戏充值", "我的世界", "天天酷跑", "和平营地", "和平精英", "王者营地", "王者荣耀", "天天爱消除", "荣耀值", "全明星觉醒", "王者荣耀世界", "逆战未来", "第五人格", "腾讯桌球", "街球艺术", "全民水浒", "节奏大师", "英雄傻", "火影忍者", "华夏", "梦幻诛仙", "全民小镇", "麻将来了", "圣斗士星矢", "跑跑卡丁车", "全民k歌", "全民农场", "pubg mobile", "火力苏打", "猫和老鼠", "傲世西游", "奇迹觉醒", "全民飞机", "问道", "热血传奇", "qq飞车", "穿越火线", "荣耀新三国", "武侠q传", "欢乐斗地主", "欢乐升级", "英雄联盟电竞经理", "全民冠军足球", "英雄联盟", "欢乐麻将", "红警ol", "全民突击", "迷你世界", "天龙八部", "光遇", "球球大作战", "塔瑞斯世界", "使命召唤", "万王之王", "抖音", "炫舞直播", "灌篮高手", "出发吧麦芬", "qq农场", "地下城与勇士"];
             
             // 确保其他收入分类正确
             Object.keys(correctIncomeStructure).forEach(key => {
@@ -1704,17 +1727,32 @@
             document.getElementById('detailModal').classList.remove('active');
         }
         
+        // 获取导出文件夹名称
+        function getExportFolderName() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            const second = String(now.getSeconds()).padStart(2, '0');
+            return `导出数据_${year}${month}${day}_${hour}${minute}${second}`;
+        }
+        
         // 导出数据
         function exportData() {
+            const folderName = getExportFolderName();
             const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `记账数据_${new Date().toISOString().slice(0, 10)}.json`;
+            a.download = `${folderName}_记账数据.json`;
             a.click();
         }
         
-        // 导入数据
+        // 导入数据 - 临时存储文件内容，显示选择弹窗
+        let pendingImportData = null;
+        
         function importData(input) {
             const file = input.files[0];
             if (!file) return;
@@ -1724,17 +1762,48 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (Array.isArray(data)) {
-                        records = data;
-                        localStorage.setItem('accounting_records', JSON.stringify(records));
-                        updateStats();
-                        renderRecords();
-                        alert('导入成功！');
+                        pendingImportData = data;
+                        document.getElementById('importChoiceModal').classList.add('active');
+                    } else {
+                        alert('导入失败：数据格式不正确');
                     }
                 } catch (err) {
                     alert('导入失败：' + err.message);
                 }
             };
             reader.readAsText(file);
+            // 清空input，允许重复选择同一文件
+            input.value = '';
+        }
+        
+        // 关闭导入选择弹窗
+        function closeImportChoiceModal() {
+            document.getElementById('importChoiceModal').classList.remove('active');
+            pendingImportData = null;
+            pendingCSVData = null;
+        }
+        
+        // 处理导入选择（支持JSON和CSV）
+        function handleImportChoice(mode) {
+            // 判断当前待导入的数据源
+            const data = pendingImportData || pendingCSVData;
+            if (!data) return;
+            
+            if (mode === 'clear') {
+                // 清空并导入
+                records = data;
+                alert(`导入成功！已清空原有数据，导入 ${records.length} 条记录。`);
+            } else if (mode === 'merge') {
+                // 合并导入
+                const originalCount = records.length;
+                records = records.concat(data);
+                alert(`导入成功！原有 ${originalCount} 条记录，新增 ${data.length} 条，共 ${records.length} 条。`);
+            }
+            
+            localStorage.setItem('accounting_records', JSON.stringify(records));
+            updateStats();
+            renderRecords();
+            closeImportChoiceModal();
         }
         
         // 切换数据格式
@@ -1751,6 +1820,7 @@
                 return;
             }
             
+            const folderName = getExportFolderName();
             let csv = '\uFEFF时间,类型,分类,金额,备注\n';
             records.forEach(r => {
                 const type = r.amount > 0 ? '收入' : '支出';
@@ -1763,8 +1833,46 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `记账数据_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.download = `${folderName}_记账数据.csv`;
             a.click();
+        }
+        
+        // 一键导出全部（JSON + CSV）
+        function exportAllData() {
+            if (records.length === 0) {
+                alert('暂无记录可导出');
+                return;
+            }
+            
+            const folderName = getExportFolderName();
+            
+            // 导出 JSON
+            const jsonBlob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+            const jsonUrl = URL.createObjectURL(jsonBlob);
+            const jsonA = document.createElement('a');
+            jsonA.href = jsonUrl;
+            jsonA.download = `${folderName}_记账数据.json`;
+            jsonA.click();
+            
+            // 延迟导出 CSV，避免浏览器阻塞
+            setTimeout(() => {
+                let csv = '\uFEFF时间,类型,分类,金额,备注\n';
+                records.forEach(r => {
+                    const type = r.amount > 0 ? '收入' : '支出';
+                    const amount = Math.abs(r.amount).toFixed(2);
+                    const note = (r.note || '').replace(/,/g, '，');
+                    csv += `${r.time},${type},${r.category},${amount},${note}\n`;
+                });
+                
+                const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const csvUrl = URL.createObjectURL(csvBlob);
+                const csvA = document.createElement('a');
+                csvA.href = csvUrl;
+                csvA.download = `${folderName}_记账数据.csv`;
+                csvA.click();
+                
+                alert(`导出完成！\n文件夹命名：${folderName}\n包含文件：\n• ${folderName}_记账数据.json\n• ${folderName}_记账数据.csv`);
+            }, 500);
         }
 
         // 固定收支功能
@@ -1900,7 +2008,9 @@
             }
         }
 
-        // 导入 CSV
+        // 导入 CSV - 临时存储解析后的数据，显示选择弹窗
+        let pendingCSVData = null;
+        
         function importCSV(input) {
             const file = input.files[0];
             if (!file) return;
@@ -1936,11 +2046,8 @@
                     }
                     
                     if (newRecords.length > 0) {
-                        records = newRecords.concat(records);
-                        localStorage.setItem('accounting_records', JSON.stringify(records));
-                        updateStats();
-                        renderRecords();
-                        alert(`成功导入 ${newRecords.length} 条记录！`);
+                        pendingCSVData = newRecords;
+                        document.getElementById('importChoiceModal').classList.add('active');
                     } else {
                         alert('未找到有效记录');
                     }
@@ -1949,7 +2056,11 @@
                 }
             };
             reader.readAsText(file);
+            // 清空input，允许重复选择同一文件
+            input.value = '';
         }
+        
+
 
         // 显示清空数据弹窗
         function showClearDataModal() {
@@ -2286,6 +2397,47 @@
         }
 
         function deleteCategory(catName) {
+            // 检查该分类下是否有记账记录
+            const relatedRecords = records.filter(r => r.category === catName);
+            const recordCount = relatedRecords.length;
+            
+            if (recordCount > 0) {
+                // 有数据，提示迁移
+                const otherCats = Object.keys(categories[categoryManageType]).filter(c => c !== catName);
+                if (otherCats.length === 0) {
+                    alert(`⚠️ 该分类下有 ${recordCount} 条记账记录，但当前没有其他${categoryManageType === 'income' ? '收入' : '支出'}分类可供迁移。\n请先添加其他分类后再删除此分类。`);
+                    return;
+                }
+                
+                // 构建迁移选项HTML
+                const catOptions = otherCats.map(c => `<option value="${c}">${c}</option>`).join('');
+                
+                // 创建迁移对话框
+                const migrateDialog = document.createElement('div');
+                migrateDialog.id = 'migrateDialog';
+                migrateDialog.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                migrateDialog.innerHTML = `
+                    <div style="background:white;padding:30px;border-radius:12px;max-width:450px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="margin-bottom:15px;color:#f5222d;">⚠️ 分类下有数据</h3>
+                        <p style="margin-bottom:15px;color:#666;">分类 "<strong>${catName}</strong>" 下有 <strong>${recordCount}</strong> 条记账记录。</p>
+                        <p style="margin-bottom:15px;color:#666;">删除前，请将这些记录迁移到其他分类：</p>
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block;margin-bottom:8px;font-weight:500;">迁移到分类：</label>
+                            <select id="migrateTargetCat" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:8px;font-size:15px;">
+                                ${catOptions}
+                            </select>
+                        </div>
+                        <div style="display:flex;gap:10px;">
+                            <button onclick="confirmMigrateAndDelete('${catName}')" style="flex:1;padding:12px;background:#f5222d;color:white;border:none;border-radius:8px;cursor:pointer;font-size:15px;">迁移并删除</button>
+                            <button onclick="closeMigrateDialog()" style="flex:1;padding:12px;background:#f0f0f0;color:#333;border:none;border-radius:8px;cursor:pointer;font-size:15px;">取消</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(migrateDialog);
+                return;
+            }
+            
+            // 没有数据，直接确认删除
             if (!confirm(`确定要删除分类"${catName}"吗？\n该分类下的所有子分类也会被删除！`)) return;
             
             delete categories[categoryManageType][catName];
@@ -2294,8 +2446,112 @@
             renderCategories();
             alert('分类已删除');
         }
+        
+        function closeMigrateDialog() {
+            const dialog = document.getElementById('migrateDialog');
+            if (dialog) dialog.remove();
+        }
+        
+        function confirmMigrateAndDelete(catName) {
+            const targetCat = document.getElementById('migrateTargetCat').value;
+            if (!targetCat) {
+                alert('请选择目标分类');
+                return;
+            }
+            if (targetCat === catName) {
+                alert('不能迁移到同一个分类');
+                return;
+            }
+            
+            // 迁移记录
+            let migratedCount = 0;
+            records.forEach(r => {
+                if (r.category === catName) {
+                    r.category = targetCat;
+                    migratedCount++;
+                }
+            });
+            
+            // 保存记录
+            localStorage.setItem('accounting_records', JSON.stringify(records));
+            
+            // 删除分类
+            delete categories[categoryManageType][catName];
+            saveCategories();
+            
+            // 关闭对话框
+            closeMigrateDialog();
+            
+            // 刷新界面
+            renderCategoryManageList();
+            renderCategories();
+            renderRecords();
+            updateStats();
+            loadTrendChart();
+            
+            alert(`✅ 已将 ${migratedCount} 条记录迁移到 "${targetCat}"，并删除分类 "${catName}"`);
+        }
 
         function deleteSubcategory(parentCat, subName) {
+            // 检查该子分类下是否有记账记录（记录中category为"父分类>子分类"格式）
+            const fullSubName = `${parentCat}>${subName}`;
+            const relatedRecords = records.filter(r => r.category === fullSubName);
+            const recordCount = relatedRecords.length;
+            
+            if (recordCount > 0) {
+                // 有数据，提示迁移
+                const siblingSubs = categories[categoryManageType][parentCat].filter(s => s !== subName);
+                const parentExists = categories[categoryManageType][parentCat] !== undefined;
+                
+                // 构建迁移选项：同父分类的其他子分类 + 其他主分类
+                let migrateOptions = [];
+                
+                // 迁移到父分类本身（如果记录格式支持）
+                migrateOptions.push({ value: parentCat, label: `【${parentCat}】（主分类）` });
+                
+                // 同父分类的其他子分类
+                siblingSubs.forEach(s => {
+                    migrateOptions.push({ value: `${parentCat}>${s}`, label: `${parentCat} > ${s}` });
+                });
+                
+                // 其他主分类
+                Object.keys(categories[categoryManageType]).forEach(c => {
+                    if (c !== parentCat) {
+                        migrateOptions.push({ value: c, label: `【${c}】` });
+                        (categories[categoryManageType][c] || []).forEach(s => {
+                            migrateOptions.push({ value: `${c}>${s}`, label: `${c} > ${s}` });
+                        });
+                    }
+                });
+                
+                const optionsHtml = migrateOptions.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+                
+                // 创建迁移对话框
+                const migrateDialog = document.createElement('div');
+                migrateDialog.id = 'migrateDialog';
+                migrateDialog.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                migrateDialog.innerHTML = `
+                    <div style="background:white;padding:30px;border-radius:12px;max-width:450px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="margin-bottom:15px;color:#f5222d;">⚠️ 子分类下有数据</h3>
+                        <p style="margin-bottom:15px;color:#666;">子分类 "${parentCat} > ${subName}" 下有 <strong>${recordCount}</strong> 条记账记录。</p>
+                        <p style="margin-bottom:15px;color:#666;">删除前，请将这些记录迁移到其他分类：</p>
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block;margin-bottom:8px;font-weight:500;">迁移到分类：</label>
+                            <select id="migrateTargetCat" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:8px;font-size:15px;">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                        <div style="display:flex;gap:10px;">
+                            <button onclick="confirmMigrateSubAndDelete('${parentCat}', '${subName}')" style="flex:1;padding:12px;background:#f5222d;color:white;border:none;border-radius:8px;cursor:pointer;font-size:15px;">迁移并删除</button>
+                            <button onclick="closeMigrateDialog()" style="flex:1;padding:12px;background:#f0f0f0;color:#333;border:none;border-radius:8px;cursor:pointer;font-size:15px;">取消</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(migrateDialog);
+                return;
+            }
+            
+            // 没有数据，直接确认删除
             if (!confirm(`确定要删除子分类"${subName}"吗？`)) return;
             
             const subs = categories[categoryManageType][parentCat];
@@ -2307,6 +2563,52 @@
                 renderCategories();
                 alert('子分类已删除');
             }
+        }
+        
+        function confirmMigrateSubAndDelete(parentCat, subName) {
+            const targetCat = document.getElementById('migrateTargetCat').value;
+            if (!targetCat) {
+                alert('请选择目标分类');
+                return;
+            }
+            
+            const fullSubName = `${parentCat}>${subName}`;
+            if (targetCat === fullSubName) {
+                alert('不能迁移到同一个分类');
+                return;
+            }
+            
+            // 迁移记录
+            let migratedCount = 0;
+            records.forEach(r => {
+                if (r.category === fullSubName) {
+                    r.category = targetCat;
+                    migratedCount++;
+                }
+            });
+            
+            // 保存记录
+            localStorage.setItem('accounting_records', JSON.stringify(records));
+            
+            // 删除子分类
+            const subs = categories[categoryManageType][parentCat];
+            const index = subs.indexOf(subName);
+            if (index > -1) {
+                subs.splice(index, 1);
+                saveCategories();
+            }
+            
+            // 关闭对话框
+            closeMigrateDialog();
+            
+            // 刷新界面
+            renderCategoryManageList();
+            renderCategories();
+            renderRecords();
+            updateStats();
+            loadTrendChart();
+            
+            alert(`✅ 已将 ${migratedCount} 条记录迁移到 "${targetCat}"，并删除子分类 "${parentCat} > ${subName}"`);
         }
 
         function saveCategories() {
